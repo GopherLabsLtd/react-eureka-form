@@ -1,4 +1,4 @@
-# react-photoswipe-component
+# React PhotoSwipe Component
 A React component for PhotoSwipe lightbox
 
 ## Installation
