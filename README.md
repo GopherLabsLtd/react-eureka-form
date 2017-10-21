@@ -7,8 +7,3 @@ A React component for PhotoSwipe lightbox
 ```sh
 npm install --save react-photoswipe-component
 ```
-
-**Bower**
-```sh
-bower install --save react-photoswipe-component
-```
