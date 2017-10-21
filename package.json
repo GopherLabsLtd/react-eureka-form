@@ -4,7 +4,9 @@
   "description": "A React component for PhotoSwipe lightbox",
   "main": "build/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack -w",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
@@ -20,5 +22,17 @@
   "bugs": {
     "url": "https://github.com/GopherLabsLtd/react-photoswipe/issues"
   },
-  "homepage": "https://github.com/GopherLabsLtd/react-photoswipe#readme"
+  "homepage": "https://github.com/GopherLabsLtd/react-photoswipe#readme",
+  "dependencies": {
+    "react": "^16.0.0",
+    "webpack": "^3.8.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1"
+  }
 }
