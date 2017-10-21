@@ -1,7 +1,7 @@
 # react-photoswipe-component
 A React component for PhotoSwipe lightbox
 
-##Installation
+## Installation
 
 **NPM**
 ```sh
