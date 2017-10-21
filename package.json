@@ -1,24 +1,24 @@
 {
-  "name": "react-swipephoto",
+  "name": "react-photoswipe",
   "version": "1.0.0",
-  "description": "A React component for SwipePhoto lightbox",
+  "description": "A React component for PhotoSwipe lightbox",
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GopherLabsLtd/react-swipephoto.git"
+    "url": "git+https://github.com/GopherLabsLtd/react-photoswipe.git"
   },
   "keywords": [
     "react",
-    "swipephoto",
+    "photoswipe",
     "lightbox"
   ],
   "author": "Gopher Labs Ltd. - Eliad Moosavi <hello@gopher.it> (https://gopher.it)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/GopherLabsLtd/react-swipephoto/issues"
+    "url": "https://github.com/GopherLabsLtd/react-photoswipe/issues"
   },
-  "homepage": "https://github.com/GopherLabsLtd/react-swipephoto#readme"
+  "homepage": "https://github.com/GopherLabsLtd/react-photoswipe#readme"
 }
