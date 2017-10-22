@@ -11,17 +11,20 @@ npm install --save react-photoswipe-component
 ## How to Use:
 **JS:**
 ```js
-import ReactPhotoSwipe from 'react-photoswipe-component';
+import { PhotoSwipeGallery } from 'react-photoswipe';
+
 const PHOTO_ITEMS = [
     {
         src: 'http://via.placeholder.com/800x394',
         w: 800,
-        h: 394
+        h: 394,
+        caption: "Test Cap"
     },
     {
         src: 'http://via.placeholder.com/1200x900',
         w: 1200,
-        h: 900
+        h: 900,
+        caption: "Caption 123"
     }
 ];
 
@@ -29,14 +32,15 @@ class SwipePhotoTest extends React.Component {
   render() {    
     return (
       <div>
-        <ReactPhotoSwipe
-            items={PHOTO_ITEMS}
-        >
-          <a href="#" onClick={(e) => e.preventDefault()}>
+        <PhotoSwipeGallery items={PHOTO_ITEMS} />
+        
+        {/* Or you can try this */}
+        
+        <PhotoSwipeGallery items={PHOTO_ITEMS}>
             Open Gallery
-          </a>
-        </ReactPhotoSwipe>
-     )
+        </PhotoSwipeGallery>
+      </div>
+    )
   }
 }
 
