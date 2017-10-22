@@ -52,3 +52,4 @@ export default SwipePhotoTest
 - Loading Spinner
 - Autoplay
 - SEO (Schemas)
+- Youtube, Vimeo & HTML slides
