@@ -11,7 +11,7 @@ npm install --save react-photoswipe-component
 ## How to Use:
 **JS:**
 ```js
-import { PhotoSwipeGallery } from 'react-photoswipe';
+import { PhotoSwipeGallery } from 'react-photoswipe-component';
 
 const PHOTO_ITEMS = [
     {

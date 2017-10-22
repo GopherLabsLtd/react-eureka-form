@@ -1,6 +1,6 @@
 {
   "name": "react-photoswipe-component",
-  "version": "1.0.0",
+  "version": "1.0.12",
   "description": "A React component for PhotoSwipe lightbox",
   "main": "build/index.js",
   "scripts": {
