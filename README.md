@@ -1,4 +1,4 @@
-# react-photoswipe-component
+# React PhotoSwipe Component
 A React component for PhotoSwipe lightbox
 
 ## Installation
@@ -6,4 +6,39 @@ A React component for PhotoSwipe lightbox
 **NPM**
 ```sh
 npm install --save react-photoswipe-component
+```
+
+## How to Use:
+**JS:**
+```js
+import ReactPhotoSwipe from 'react-photoswipe-component';
+const PHOTO_ITEMS = [
+    {
+        src: 'http://via.placeholder.com/800x394',
+        w: 800,
+        h: 394
+    },
+    {
+        src: 'http://via.placeholder.com/1200x900',
+        w: 1200,
+        h: 900
+    }
+];
+
+class SwipePhotoTest extends React.Component {
+  render() {    
+    return (
+      <div>
+        <ReactPhotoSwipe
+            items={PHOTO_ITEMS}
+        >
+          <a href="#" onClick={(e) => e.preventDefault()}>
+            Open Gallery
+          </a>
+        </ReactPhotoSwipe>
+     )
+  }
+}
+
+export default SwipePhotoTest
 ```
