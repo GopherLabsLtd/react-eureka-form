@@ -46,3 +46,9 @@ class SwipePhotoTest extends React.Component {
 
 export default SwipePhotoTest
 ```
+
+## Future Goals:
+- Automatic image resizing and responsiveness
+- Loading Spinner
+- Autoplay
+- SEO (Schemas)
