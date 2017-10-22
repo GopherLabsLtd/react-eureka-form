@@ -1,4 +1,4 @@
-# React PhotoSwipe Component
+# React PhotoSwipe Component [![npm](https://img.shields.io/npm/v/react-photoswipe-component.svg)](https://www.npmjs.com/package/react-photoswipe-component) [![npm](https://img.shields.io/npm/dw/react-photoswipe-component.svg)](https://www.npmjs.com/package/react-photoswipe-component)
 A React component for PhotoSwipe lightbox
 
 ## Installation
