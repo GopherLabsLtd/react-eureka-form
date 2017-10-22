@@ -5,7 +5,7 @@ const PhotoSwipeUI_Default = require("../node_modules/photoswipe/dist/photoswipe
 import "../node_modules/photoswipe/dist/default-skin/default-skin.css";
 import "../node_modules/photoswipe/dist/photoswipe.css";
 
-export default class ReactPhotoSwipe extends React.Component {
+class PhotoSwipeGallery extends React.Component {
     constructor(props) {
         super(props);
   
@@ -86,3 +86,5 @@ export default class ReactPhotoSwipe extends React.Component {
       )
     }
 }
+
+module.exports = { PhotoSwipeGallery };
