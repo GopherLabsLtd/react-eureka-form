@@ -1,0 +1,20 @@
+.pswp-gallery {
+    width: 100%;
+    float: left;
+}
+
+.pswp-gallery img {
+    width: 100%;
+    height: auto;
+}
+
+.pswp-gallery figure {
+    display: block;
+    float: left;
+    margin: 0 5px 5px 0;
+    width: 150px;
+}
+
+.pswp-gallery figcaption {
+    display: none;
+}

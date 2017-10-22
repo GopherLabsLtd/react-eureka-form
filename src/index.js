@@ -1,9 +1,12 @@
 import React from 'react';
 
-const PhotoSwipe = require("photoswipe");
-const PhotoSwipeUI_Default = require("../node_modules/photoswipe/dist/photoswipe-ui-default.js");
-import "../node_modules/photoswipe/dist/default-skin/default-skin.css";
-import "../node_modules/photoswipe/dist/photoswipe.css";
+const PhotoSwipe = require("photoswipe")
+const PhotoSwipeUI_Default = require("../node_modules/photoswipe/dist/photoswipe-ui-default.js")
+import "../node_modules/photoswipe/dist/default-skin/default-skin.css"
+import "../node_modules/photoswipe/dist/photoswipe.css"
+import "./style.css"
+
+import { PhotoSwipeGalleryNoChildren } from "./PhotoSwipeGallery_NoChildren"
 
 class PhotoSwipeGallery extends React.Component {
     constructor(props) {
@@ -30,58 +33,66 @@ class PhotoSwipeGallery extends React.Component {
       e.preventDefault();
       this.openPhotoSwipe();
     }
-    
+
     render() {
+      const pswpElementID = "pswp-element";
+      const PswpElement = props =>
+        <div className="pswp" ref={(pswp) => { this.pswp = pswp; }} id={pswpElementID} tabIndex="-1" role="dialog" aria-hidden="true">
+            <div className="pswp__bg"></div>
+
+            <div className="pswp__scroll-wrap">
+                <div className="pswp__container">
+                    <div className="pswp__item"></div>
+                    <div className="pswp__item"></div>
+                    <div className="pswp__item"></div>
+                </div>
+
+                <div className="pswp__ui pswp__ui--hidden">
+                    <div className="pswp__top-bar">
+                        <div className="pswp__counter"></div>
+
+                        <button className="pswp__button pswp__button--close" title="Close (Esc)"></button>
+                        <button className="pswp__button pswp__button--share" title="Share"></button>
+                        <button className="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+                        <button className="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                        <div className="pswp__preloader">
+                            <div className="pswp__preloader__icn">
+                                <div className="pswp__preloader__cut">
+                                    <div className="pswp__preloader__donut"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                        <div className="pswp__share-tooltip"></div> 
+                    </div>
+
+                    <button className="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
+
+                    <button className="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
+
+                    <div className="pswp__caption">
+                        <div className="pswp__caption__center"></div>
+                    </div>
+                </div>
+            </div>
+        </div>;
+
       return (
           <div>
-              { /* childrenWithProps */}
-  
-              <div onClick={this.showGallery.bind(this)}>
-                  {this.props.children}
-              </div>
-  
-              <div className="pswp" ref={(pswp) => { this.pswp = pswp; }} tabIndex="-1" role="dialog" aria-hidden="true">
-                  <div className="pswp__bg"></div>
-  
-                  <div className="pswp__scroll-wrap">
-                      <div className="pswp__container">
-                          <div className="pswp__item"></div>
-                          <div className="pswp__item"></div>
-                          <div className="pswp__item"></div>
-                      </div>
-  
-                      <div className="pswp__ui pswp__ui--hidden">
-                          <div className="pswp__top-bar">
-                              <div className="pswp__counter"></div>
-  
-                              <button className="pswp__button pswp__button--close" title="Close (Esc)"></button>
-                              <button className="pswp__button pswp__button--share" title="Share"></button>
-                              <button className="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
-                              <button className="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
-  
-                              <div className="pswp__preloader">
-                                  <div className="pswp__preloader__icn">
-                                      <div className="pswp__preloader__cut">
-                                          <div className="pswp__preloader__donut"></div>
-                                      </div>
-                                  </div>
-                              </div>
-                          </div>
-  
-                          <div className="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
-                              <div className="pswp__share-tooltip"></div> 
-                          </div>
-  
-                          <button className="pswp__button pswp__button--arrow--left" title="Previous (arrow left)"></button>
-  
-                          <button className="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button>
-  
-                          <div className="pswp__caption">
-                              <div className="pswp__caption__center"></div>
-                          </div>
-                      </div>
-                  </div>
-              </div>
+            <PswpElement />
+            
+            {this.props.children !== undefined &&
+                <div onClick={this.showGallery.bind(this)}>
+                    {this.props.children}
+                </div>
+            }
+
+            {this.props.children === undefined &&
+                <PhotoSwipeGalleryNoChildren items={this.props.items} elID={pswpElementID} galleryUID={this.groupID} />
+            }
           </div>
       )
     }

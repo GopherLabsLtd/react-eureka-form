@@ -535,6 +535,10 @@ __webpack_require__(4);
 
 __webpack_require__(10);
 
+__webpack_require__(15);
+
+var _PhotoSwipeGallery_NoChildren = __webpack_require__(14);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -584,19 +588,13 @@ var PhotoSwipeGallery = function (_React$Component) {
         value: function render() {
             var _this2 = this;
 
-            return _react2.default.createElement(
-                "div",
-                null,
-                _react2.default.createElement(
-                    "div",
-                    { onClick: this.showGallery.bind(this) },
-                    this.props.children
-                ),
-                _react2.default.createElement(
+            var pswpElementID = "pswp-element";
+            var PswpElement = function PswpElement(props) {
+                return _react2.default.createElement(
                     "div",
                     { className: "pswp", ref: function ref(pswp) {
                             _this2.pswp = pswp;
-                        }, tabIndex: "-1", role: "dialog", "aria-hidden": "true" },
+                        }, id: pswpElementID, tabIndex: "-1", role: "dialog", "aria-hidden": "true" },
                     _react2.default.createElement("div", { className: "pswp__bg" }),
                     _react2.default.createElement(
                         "div",
@@ -647,7 +645,19 @@ var PhotoSwipeGallery = function (_React$Component) {
                             )
                         )
                     )
-                )
+                );
+            };
+
+            return _react2.default.createElement(
+                "div",
+                null,
+                _react2.default.createElement(PswpElement, null),
+                this.props.children !== undefined && _react2.default.createElement(
+                    "div",
+                    { onClick: this.showGallery.bind(this) },
+                    this.props.children
+                ),
+                this.props.children === undefined && _react2.default.createElement(_PhotoSwipeGallery_NoChildren.PhotoSwipeGalleryNoChildren, { items: this.props.items, elID: pswpElementID, galleryUID: this.groupID })
             );
         }
     }]);
@@ -5478,6 +5488,271 @@ return PhotoSwipeUI_Default;
 
 
 });
+
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(3);
+
+var _react2 = _interopRequireDefault(_react);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var PhotoSwipe = __webpack_require__(12);
+var PhotoSwipeUI_Default = __webpack_require__(13);
+
+// find nearest parent element
+var closest = function closest(el, fn) {
+    return el && (fn(el) ? el : closest(el.parentNode, fn));
+};
+
+// parse slide data (url, title, size ...) from DOM elements 
+// (children of gallerySelector)
+var parseThumbnailElements = function parseThumbnailElements(el) {
+    var thumbElements = el.childNodes,
+        numNodes = thumbElements.length,
+        items = [],
+        figureEl,
+        linkEl,
+        size,
+        item;
+
+    for (var i = 0; i < numNodes; i++) {
+
+        figureEl = thumbElements[i]; // <figure> element
+
+        // include only element nodes 
+        if (figureEl.nodeType !== 1) {
+            continue;
+        }
+
+        linkEl = figureEl.children[0]; // <a> element
+
+        size = linkEl.getAttribute('data-size').split('x');
+
+        // create slide object
+        item = {
+            src: linkEl.getAttribute('href'),
+            w: parseInt(size[0], 10),
+            h: parseInt(size[1], 10)
+        };
+
+        if (figureEl.children.length > 1) {
+            // <figcaption> content
+            item.title = figureEl.children[1].innerHTML;
+        }
+
+        if (linkEl.children.length > 0) {
+            // <img> thumbnail element, retrieving thumbnail url
+            item.msrc = linkEl.children[0].getAttribute('src');
+        }
+
+        item.el = figureEl; // save link to element for getThumbBoundsFn
+        items.push(item);
+    }
+
+    return items;
+};
+
+var PhotoSwipeGalleryNoChildren = function (_React$Component) {
+    _inherits(PhotoSwipeGalleryNoChildren, _React$Component);
+
+    function PhotoSwipeGalleryNoChildren() {
+        _classCallCheck(this, PhotoSwipeGalleryNoChildren);
+
+        return _possibleConstructorReturn(this, (PhotoSwipeGalleryNoChildren.__proto__ || Object.getPrototypeOf(PhotoSwipeGalleryNoChildren)).apply(this, arguments));
+    }
+
+    _createClass(PhotoSwipeGalleryNoChildren, [{
+        key: "openPhotoSwipe",
+        value: function openPhotoSwipe(index, galleryElement, disableAnimation, fromURL) {
+            var pswpElement = document.getElementById(this.props.elID),
+                gallery,
+                options,
+                items;
+
+            items = parseThumbnailElements(galleryElement);
+
+            // define options (if needed)
+            options = {
+
+                // define gallery index (for URL)
+                galleryUID: this.props.galleryUID,
+
+                getThumbBoundsFn: function getThumbBoundsFn(index) {
+                    // See Options -> getThumbBoundsFn section of documentation for more info
+                    var thumbnail = items[index].el.getElementsByTagName('img')[0],
+                        // find thumbnail
+                    pageYScroll = window.pageYOffset || document.documentElement.scrollTop,
+                        rect = thumbnail.getBoundingClientRect();
+
+                    return { x: rect.left, y: rect.top + pageYScroll, w: rect.width };
+                }
+
+            };
+
+            // PhotoSwipe opened from URL
+            if (fromURL) {
+                if (options.galleryPIDs) {
+                    // parse real index when custom PIDs are used 
+                    // http://photoswipe.com/documentation/faq.html#custom-pid-in-url
+                    for (var j = 0; j < items.length; j++) {
+                        if (items[j].pid == index) {
+                            options.index = j;
+                            break;
+                        }
+                    }
+                } else {
+                    // in URL indexes start from 1
+                    options.index = parseInt(index, 10) - 1;
+                }
+            } else {
+                options.index = parseInt(index, 10);
+            }
+
+            // exit if index not found
+            if (isNaN(options.index)) {
+                return;
+            }
+
+            if (disableAnimation) {
+                options.showAnimationDuration = 0;
+            }
+
+            // Pass data to PhotoSwipe and initialize it
+            gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, items, options);
+            gallery.init();
+        }
+    }, {
+        key: "onThumbnailsClick",
+        value: function onThumbnailsClick(e) {
+            e = e || window.event;
+            e.preventDefault ? e.preventDefault() : e.returnValue = false;
+
+            var eTarget = e.target || e.srcElement;
+
+            // find root element of slide
+            var clickedListItem = closest(eTarget, function (el) {
+                return el.tagName && el.tagName.toUpperCase() === 'FIGURE';
+            });
+
+            if (!clickedListItem) {
+                return;
+            }
+
+            // find index of clicked item by looping through all child nodes
+            // alternatively, you may define index via data- attribute
+            var clickedGallery = clickedListItem.parentNode,
+                childNodes = clickedListItem.parentNode.childNodes,
+                numChildNodes = childNodes.length,
+                nodeIndex = 0,
+                index;
+
+            for (var i = 0; i < numChildNodes; i++) {
+                if (childNodes[i].nodeType !== 1) {
+                    continue;
+                }
+
+                if (childNodes[i] === clickedListItem) {
+                    index = nodeIndex;
+                    break;
+                }
+                nodeIndex++;
+            }
+
+            if (index >= 0) {
+                // open PhotoSwipe if valid index found
+                this.openPhotoSwipe(index, clickedGallery);
+            }
+            return false;
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return _react2.default.createElement(
+                "div",
+                { onClick: this.onThumbnailsClick.bind(this), className: "pswp-gallery" },
+                this.props.items.map(function (item, i) {
+                    return _react2.default.createElement(
+                        "figure",
+                        { key: item.src, itemProp: "associatedMedia", itemScope: true, itemType: "http://schema.org/ImageObject" },
+                        _react2.default.createElement(
+                            "a",
+                            { href: item.src, itemProp: "contentUrl", "data-size": item.w + "x" + item.h },
+                            _react2.default.createElement("img", { src: item.src, itemProp: "thumbnail", alt: item.caption })
+                        ),
+                        _react2.default.createElement(
+                            "figcaption",
+                            { itemProp: "caption description" },
+                            item.caption
+                        )
+                    );
+                })
+            );
+        }
+    }]);
+
+    return PhotoSwipeGalleryNoChildren;
+}(_react2.default.Component);
+
+module.exports = { PhotoSwipeGalleryNoChildren: PhotoSwipeGalleryNoChildren };
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(16);
+if(typeof content === 'string') content = [[module.i, content, '']];
+// Prepare cssTransformation
+var transform;
+
+var options = {"hmr":true}
+options.transform = transform
+// add the styles to the DOM
+var update = __webpack_require__(1)(content, options);
+if(content.locals) module.exports = content.locals;
+// Hot Module Replacement
+if(false) {
+	// When the styles change, update the <style> tags
+	if(!content.locals) {
+		module.hot.accept("!!../node_modules/css-loader/index.js!./style.css", function() {
+			var newContent = require("!!../node_modules/css-loader/index.js!./style.css");
+			if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+			update(newContent);
+		});
+	}
+	// When the module is disposed, remove the <style> tags
+	module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, ".pswp-gallery {\n    width: 100%;\n    float: left;\n}\n\n.pswp-gallery img {\n    width: 100%;\n    height: auto;\n}\n\n.pswp-gallery figure {\n    display: block;\n    float: left;\n    margin: 0 5px 5px 0;\n    width: 150px;\n}\n\n.pswp-gallery figcaption {\n    display: none;\n}", ""]);
+
+// exports
 
 
 /***/ })
