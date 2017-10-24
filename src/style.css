@@ -1,3 +1,7 @@
+.pswp {
+    z-index: 10000;
+}
+
 .pswp-gallery {
     width: 100%;
     float: left;
