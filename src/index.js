@@ -7,6 +7,7 @@ import "../node_modules/photoswipe/dist/photoswipe.css"
 import "./style.css"
 
 import { PhotoSwipeGalleryNoChildren } from "./PhotoSwipeGallery_NoChildren"
+import * as PhotoSwipeEvents from "./Events"
 
 class PhotoSwipeGallery extends React.Component {
     constructor(props) {
@@ -41,10 +42,7 @@ class PhotoSwipeGallery extends React.Component {
       this.gallery.init();
 
       this.gallery.listen('close', ()=> {
-        var iframes = pswpElement.querySelectorAll("iframe.video");
-        for (var i = 0; i < iframes.length; i++) {
-            iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
-        }
+        PhotoSwipeEvents.stopVideos(pswpElement);
       });
     }
   

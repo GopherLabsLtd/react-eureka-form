@@ -5159,6 +5159,12 @@ __webpack_require__(14);
 
 var _PhotoSwipeGallery_NoChildren = __webpack_require__(16);
 
+var _Events = __webpack_require__(17);
+
+var PhotoSwipeEvents = _interopRequireWildcard(_Events);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -5210,10 +5216,7 @@ var PhotoSwipeGallery = function (_React$Component) {
             this.gallery.init();
 
             this.gallery.listen('close', function () {
-                var iframes = pswpElement.querySelectorAll("iframe.video");
-                for (var i = 0; i < iframes.length; i++) {
-                    iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
-                }
+                PhotoSwipeEvents.stopVideos(pswpElement);
             });
         }
     }, {
@@ -5773,6 +5776,24 @@ var PhotoSwipeGalleryNoChildren = function (_React$Component) {
 }(_react2.default.Component);
 
 module.exports = { PhotoSwipeGalleryNoChildren: PhotoSwipeGalleryNoChildren };
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var stopVideos = function stopVideos(pswpElement) {
+    var iframes = pswpElement.querySelectorAll("iframe.video");
+    for (var i = 0; i < iframes.length; i++) {
+        iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
+    }
+};
+
+module.exports = {
+    stopVideos: stopVideos
+};
 
 /***/ })
 /******/ ]);
