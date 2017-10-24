@@ -5189,8 +5189,8 @@ var PhotoSwipeGallery = function (_React$Component) {
         _this.items.map(function (item, i) {
             if (item.type === "video") {
                 if (_this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
-                if (item.video.source === "youtube") {
-                    var itemID = item.video.id;
+                if (item.media.source === "youtube") {
+                    var itemID = item.media.id;
                     _this.items[i] = {
                         html: "<iframe class=\"video\" width=\"560\" height=\"315\" src=\"https://www.youtube-nocookie.com/embed/" + itemID + "?rel=0&amp;showinfo=0?rel=0&amp;showinfo=0\" frameborder=\"0\" allowfullscreen></iframe>"
                     };
@@ -5216,6 +5216,10 @@ var PhotoSwipeGallery = function (_React$Component) {
             this.gallery.init();
 
             this.gallery.listen('close', function () {
+                PhotoSwipeEvents.stopVideos(pswpElement);
+            });
+
+            this.gallery.listen('beforeChange', function () {
                 PhotoSwipeEvents.stopVideos(pswpElement);
             });
         }

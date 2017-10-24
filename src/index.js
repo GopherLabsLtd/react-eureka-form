@@ -18,8 +18,8 @@ class PhotoSwipeGallery extends React.Component {
         this.items.map((item, i) => {
             if (item.type === "video") {
                 if (this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
-                if (item.video.source === "youtube") {
-                    var itemID = item.video.id;
+                if (item.media.source === "youtube") {
+                    var itemID = item.media.id;
                     this.items[i] = {
                         html: `<iframe class="video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/${itemID}?rel=0&amp;showinfo=0?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>`
                     };
@@ -41,9 +41,13 @@ class PhotoSwipeGallery extends React.Component {
       this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
       this.gallery.init();
 
-      this.gallery.listen('close', ()=> {
+      this.gallery.listen('close', () => {
         PhotoSwipeEvents.stopVideos(pswpElement);
       });
+
+      this.gallery.listen('beforeChange', () => {
+        PhotoSwipeEvents.stopVideos(pswpElement);
+      });      
     }
   
     showGallery(e) {  
