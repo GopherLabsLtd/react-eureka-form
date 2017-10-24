@@ -15,8 +15,11 @@ class PhotoSwipeGallery extends React.Component {
   
         this.groupID = Math.floor(Math.random() * 1e8);
         this.items = props.items;
+        this.itemsHasVideo = false;
         this.items.map((item, i) => {
             if (item.type === "video") {
+                this.itemsHasVideo = true;
+
                 if (this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
                 if (item.media.source === "youtube") {
                     var itemID = item.media.id;
@@ -41,13 +44,15 @@ class PhotoSwipeGallery extends React.Component {
       this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
       this.gallery.init();
 
-      this.gallery.listen('close', () => {
-        PhotoSwipeEvents.stopVideos(pswpElement);
-      });
-
-      this.gallery.listen('beforeChange', () => {
-        PhotoSwipeEvents.stopVideos(pswpElement);
-      });      
+      if (this.itemsHasVideo) {
+        this.gallery.listen('close', () => {
+            PhotoSwipeEvents.stopVideos(pswpElement);
+          });
+    
+          this.gallery.listen('beforeChange', () => {
+            PhotoSwipeEvents.stopVideos(pswpElement);
+          });
+      }    
     }
   
     showGallery(e) {  

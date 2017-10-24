@@ -5186,8 +5186,11 @@ var PhotoSwipeGallery = function (_React$Component) {
 
         _this.groupID = Math.floor(Math.random() * 1e8);
         _this.items = props.items;
+        _this.itemsHasVideo = false;
         _this.items.map(function (item, i) {
             if (item.type === "video") {
+                _this.itemsHasVideo = true;
+
                 if (_this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
                 if (item.media.source === "youtube") {
                     var itemID = item.media.id;
@@ -5215,13 +5218,15 @@ var PhotoSwipeGallery = function (_React$Component) {
             this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
             this.gallery.init();
 
-            this.gallery.listen('close', function () {
-                PhotoSwipeEvents.stopVideos(pswpElement);
-            });
+            if (this.itemsHasVideo) {
+                this.gallery.listen('close', function () {
+                    PhotoSwipeEvents.stopVideos(pswpElement);
+                });
 
-            this.gallery.listen('beforeChange', function () {
-                PhotoSwipeEvents.stopVideos(pswpElement);
-            });
+                this.gallery.listen('beforeChange', function () {
+                    PhotoSwipeEvents.stopVideos(pswpElement);
+                });
+            }
         }
     }, {
         key: "showGallery",
