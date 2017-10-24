@@ -5179,6 +5179,21 @@ var PhotoSwipeGallery = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (PhotoSwipeGallery.__proto__ || Object.getPrototypeOf(PhotoSwipeGallery)).call(this, props));
 
         _this.groupID = Math.floor(Math.random() * 1e8);
+        _this.items = props.items;
+        console.log(_this.items);
+        _this.items.map(function (item, i) {
+            if (item.type === "video") {
+                if (_this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
+                if (item.video.source === "youtube") {
+                    var itemID = item.video.id;
+                    _this.items[i] = {
+                        html: "<iframe class=\"video\" width=\"560\" height=\"315\" src=\"https://www.youtube-nocookie.com/embed/" + itemID + "?rel=0&amp;showinfo=0?rel=0&amp;showinfo=0\" frameborder=\"0\" allowfullscreen></iframe>"
+                    };
+                }
+            }
+        });
+
+        console.log(_this.items);
         return _this;
     }
 
@@ -5530,7 +5545,7 @@ exports = module.exports = __webpack_require__(0)(undefined);
 
 
 // module
-exports.push([module.i, ".pswp {\n    z-index: 10000;\n}\n\n.pswp-gallery {\n    width: 100%;\n    float: left;\n}\n\n.pswp-gallery img {\n    width: 100%;\n    height: auto;\n}\n\n.pswp-gallery figure {\n    display: block;\n    float: left;\n    margin: 0 5px 5px 0;\n    width: 150px;\n}\n\n.pswp-gallery figcaption {\n    display: none;\n}", ""]);
+exports.push([module.i, ".pswp {\n    z-index: 10000;\n    position: relative;\n}\n\n.pswp iframe.video {\n    width: 100%;\n    height: 100%;\n    height: calc(100% - 44px);\n    position: absolute;\n    left: 0;\n    bottom: 0;\n}\n\n.pswp-gallery {\n    width: 100%;\n    float: left;\n}\n\n.pswp-gallery img {\n    width: 100%;\n    height: auto;\n}\n\n.pswp-gallery figure {\n    display: block;\n    float: left;\n    margin: 0 5px 5px 0;\n    width: 150px;\n}\n\n.pswp-gallery figcaption {\n    display: none;\n}", ""]);
 
 // exports
 
