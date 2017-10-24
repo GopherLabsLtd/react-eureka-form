@@ -5754,7 +5754,7 @@ var PhotoSwipeGalleryNoChildren = function (_React$Component) {
                             { href: item.src, itemProp: "contentUrl", "data-size": item.w + "x" + item.h },
                             _react2.default.createElement("img", { src: item.src, itemProp: "thumbnail", alt: item.caption })
                         ),
-                        _react2.default.createElement(
+                        item.caption && _react2.default.createElement(
                             "figcaption",
                             { itemProp: "caption description" },
                             item.caption

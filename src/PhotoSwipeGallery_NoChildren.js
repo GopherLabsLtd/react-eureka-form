@@ -172,7 +172,7 @@ class PhotoSwipeGalleryNoChildren extends React.Component {
                             <img src={item.src} itemProp="thumbnail" alt={item.caption} />
                         </a>
 
-                        <figcaption itemProp="caption description">{item.caption}</figcaption>
+                        {item.caption && <figcaption itemProp="caption description">{item.caption}</figcaption>}
                     </figure>
                 )
                 })
