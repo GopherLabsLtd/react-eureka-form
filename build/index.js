@@ -5180,7 +5180,6 @@ var PhotoSwipeGallery = function (_React$Component) {
 
         _this.groupID = Math.floor(Math.random() * 1e8);
         _this.items = props.items;
-        console.log(_this.items);
         _this.items.map(function (item, i) {
             if (item.type === "video") {
                 if (_this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
@@ -5192,8 +5191,6 @@ var PhotoSwipeGallery = function (_React$Component) {
                 }
             }
         });
-
-        console.log(_this.items);
         return _this;
     }
 
@@ -5209,8 +5206,15 @@ var PhotoSwipeGallery = function (_React$Component) {
             };
 
             // Initializes and opens PhotoSwipe
-            this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.props.items, options);
+            this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
             this.gallery.init();
+
+            this.gallery.listen('close', function () {
+                var iframes = pswpElement.querySelectorAll("iframe.video");
+                for (var i = 0; i < iframes.length; i++) {
+                    iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
+                }
+            });
         }
     }, {
         key: "showGallery",

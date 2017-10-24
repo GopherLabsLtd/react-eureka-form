@@ -14,7 +14,6 @@ class PhotoSwipeGallery extends React.Component {
   
         this.groupID = Math.floor(Math.random() * 1e8);
         this.items = props.items;
-        console.log(this.items);
         this.items.map((item, i) => {
             if (item.type === "video") {
                 if (this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
@@ -26,8 +25,6 @@ class PhotoSwipeGallery extends React.Component {
                 }
             }
         });
-
-        console.log(this.items);
     }
   
     openPhotoSwipe() {
@@ -40,8 +37,15 @@ class PhotoSwipeGallery extends React.Component {
       };
       
       // Initializes and opens PhotoSwipe
-      this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.props.items, options);
+      this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
       this.gallery.init();
+
+      this.gallery.listen('close', ()=> {
+        var iframes = pswpElement.querySelectorAll("iframe.video");
+        for (var i = 0; i < iframes.length; i++) {
+            iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
+        }
+      });
     }
   
     showGallery(e) {  
