@@ -5335,6 +5335,12 @@ __webpack_require__(72);
 
 var _PhotoSwipeGallery_NoChildren = __webpack_require__(74);
 
+var _Events = __webpack_require__(17);
+
+var PhotoSwipeEvents = _interopRequireWildcard(_Events);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -5355,6 +5361,21 @@ var PhotoSwipeGallery = function (_React$Component) {
         var _this = _possibleConstructorReturn(this, (PhotoSwipeGallery.__proto__ || Object.getPrototypeOf(PhotoSwipeGallery)).call(this, props));
 
         _this.groupID = Math.floor(Math.random() * 1e8);
+        _this.items = props.items;
+        _this.itemsHasVideo = false;
+        _this.items.map(function (item, i) {
+            if (item.type === "video") {
+                _this.itemsHasVideo = true;
+
+                if (_this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
+                if (item.media.source === "youtube") {
+                    var itemID = item.media.id;
+                    _this.items[i] = {
+                        html: "<iframe class=\"video\" width=\"560\" height=\"315\" src=\"https://www.youtube-nocookie.com/embed/" + itemID + "?rel=0&amp;showinfo=0?rel=0&amp;showinfo=0\" frameborder=\"0\" allowfullscreen></iframe>"
+                    };
+                }
+            }
+        });
         return _this;
     }
 
@@ -5370,8 +5391,18 @@ var PhotoSwipeGallery = function (_React$Component) {
             };
 
             // Initializes and opens PhotoSwipe
-            this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.props.items, options);
+            this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
             this.gallery.init();
+
+            if (this.itemsHasVideo) {
+                this.gallery.listen('close', function () {
+                    PhotoSwipeEvents.stopVideos(pswpElement);
+                });
+
+                this.gallery.listen('beforeChange', function () {
+                    PhotoSwipeEvents.stopVideos(pswpElement);
+                });
+            }
         }
     }, {
         key: "showGallery",
@@ -6220,7 +6251,7 @@ exports = module.exports = __webpack_require__(8)(undefined);
 
 
 // module
-exports.push([module.i, ".pswp {\n    z-index: 10000;\n}\n\n.pswp-gallery {\n    width: 100%;\n    float: left;\n}\n\n.pswp-gallery img {\n    width: 100%;\n    height: auto;\n}\n\n.pswp-gallery figure {\n    display: block;\n    float: left;\n    margin: 0 5px 5px 0;\n    width: 150px;\n}\n\n.pswp-gallery figcaption {\n    display: none;\n}", ""]);
+exports.push([module.i, ".pswp {\n    z-index: 10000;\n    position: relative;\n}\n\n.pswp iframe.video {\n    width: 100%;\n    height: 100%;\n    height: calc(100% - 44px);\n    position: absolute;\n    left: 0;\n    bottom: 0;\n}\n\n.pswp-gallery {\n    width: 100%;\n    float: left;\n}\n\n.pswp-gallery img {\n    width: 100%;\n    height: auto;\n}\n\n.pswp-gallery figure {\n    display: block;\n    float: left;\n    margin: 0 5px 5px 0;\n    width: 150px;\n}\n\n.pswp-gallery figcaption {\n    display: none;\n}", ""]);
 
 // exports
 
@@ -6429,7 +6460,7 @@ var PhotoSwipeGalleryNoChildren = function (_React$Component) {
                             { href: item.src, itemProp: "contentUrl", "data-size": item.w + "x" + item.h },
                             _react2.default.createElement("img", { src: item.src, itemProp: "thumbnail", alt: item.caption })
                         ),
-                        _react2.default.createElement(
+                        item.caption && _react2.default.createElement(
                             "figcaption",
                             { itemProp: "caption description" },
                             item.caption
@@ -6444,6 +6475,24 @@ var PhotoSwipeGalleryNoChildren = function (_React$Component) {
 }(_react2.default.Component);
 
 module.exports = { PhotoSwipeGalleryNoChildren: PhotoSwipeGalleryNoChildren };
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var stopVideos = function stopVideos(pswpElement) {
+    var iframes = pswpElement.querySelectorAll("iframe.video");
+    for (var i = 0; i < iframes.length; i++) {
+        iframes[i].setAttribute("src", iframes[i].getAttribute("src"));
+    }
+};
+
+module.exports = {
+    stopVideos: stopVideos
+};
 
 /***/ })
 /******/ ]);

@@ -7,12 +7,28 @@ import "../node_modules/photoswipe/dist/photoswipe.css"
 import "./style.css"
 
 import { PhotoSwipeGalleryNoChildren } from "./PhotoSwipeGallery_NoChildren"
+import * as PhotoSwipeEvents from "./Events"
 
 class PhotoSwipeGallery extends React.Component {
     constructor(props) {
         super(props);
   
         this.groupID = Math.floor(Math.random() * 1e8);
+        this.items = props.items;
+        this.itemsHasVideo = false;
+        this.items.map((item, i) => {
+            if (item.type === "video") {
+                this.itemsHasVideo = true;
+
+                if (this.props.children === undefined) throw new Error("Can't have no children for the component when some of the items have 'html' attributes");
+                if (item.media.source === "youtube") {
+                    var itemID = item.media.id;
+                    this.items[i] = {
+                        html: `<iframe class="video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/${itemID}?rel=0&amp;showinfo=0?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>`
+                    };
+                }
+            }
+        });
     }
   
     openPhotoSwipe() {
@@ -25,8 +41,18 @@ class PhotoSwipeGallery extends React.Component {
       };
       
       // Initializes and opens PhotoSwipe
-      this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.props.items, options);
+      this.gallery = new PhotoSwipe(pswpElement, PhotoSwipeUI_Default, this.items, options);
       this.gallery.init();
+
+      if (this.itemsHasVideo) {
+        this.gallery.listen('close', () => {
+            PhotoSwipeEvents.stopVideos(pswpElement);
+          });
+    
+          this.gallery.listen('beforeChange', () => {
+            PhotoSwipeEvents.stopVideos(pswpElement);
+          });
+      }    
     }
   
     showGallery(e) {  
