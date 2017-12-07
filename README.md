@@ -5,13 +5,15 @@ A React component for PhotoSwipe lightbox
 
 **NPM**
 ```sh
-npm install --save react-photoswipe-component
+npm install --save photoswipe react-photoswipe-component
 ```
 
 ## How to Use:
 **JS:**
 ```js
-import { PhotoSwipeGallery } from 'react-photoswipe-component';
+import { PhotoSwipeGallery } from 'react-photoswipe-component'
+import "../node_modules/photoswipe/dist/default-skin/default-skin.css"
+import "../node_modules/photoswipe/dist/photoswipe.css"
 
 const PHOTO_ITEMS = [
     {
@@ -49,7 +51,5 @@ export default SwipePhotoTest
 
 ## Future Goals:
 - Automatic image resizing and responsiveness
-- Loading Spinner
 - Autoplay
 - SEO (Schemas)
-- Youtube, Vimeo & HTML slides
