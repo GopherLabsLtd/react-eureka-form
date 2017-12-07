@@ -12,8 +12,9 @@ npm install --save photoswipe react-photoswipe-component
 **JS:**
 ```js
 import { PhotoSwipeGallery } from 'react-photoswipe-component'
-import "../node_modules/photoswipe/dist/default-skin/default-skin.css"
 import "../node_modules/photoswipe/dist/photoswipe.css"
+import "../node_modules/photoswipe/dist/default-skin/default-skin.css"
+import "../node_modules/react-photoswipe-component/src/style.css"
 
 const PHOTO_ITEMS = [
     {
