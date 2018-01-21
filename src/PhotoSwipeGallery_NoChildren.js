@@ -80,8 +80,8 @@ class PhotoSwipeGalleryNoChildren extends React.Component {
                     rect = thumbnail.getBoundingClientRect(); 
 
                 return {x:rect.left, y:rect.top + pageYScroll, w:rect.width};
-            }
-
+            },
+            ...this.props.options
         };
 
         // PhotoSwipe opened from URL
