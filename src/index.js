@@ -37,7 +37,8 @@ class PhotoSwipeGallery extends React.Component {
       // define options (if needed)
       var options = {
           index: 0, // start at first slide
-          galleryUID: this.groupID
+          galleryUID: this.groupID,
+          ...this.props.options
       };
       
       // Initializes and opens PhotoSwipe
@@ -117,7 +118,7 @@ class PhotoSwipeGallery extends React.Component {
             }
 
             {this.props.children === undefined &&
-                <PhotoSwipeGalleryNoChildren items={this.props.items} elID={pswpElementID} galleryUID={this.groupID} />
+                <PhotoSwipeGalleryNoChildren options={this.props.options} items={this.props.items} elID={pswpElementID} galleryUID={this.groupID} />
             }
           </div>
       )
