@@ -106,16 +106,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-// const transEndEventNames = {
-//     'WebkitTransition': 'webkitTransitionEnd',
-//     'MozTransition': 'transitionend',
-//     'OTransition': 'oTransitionEnd',
-//     'msTransition': 'MSTransitionEnd',
-//     'transition': 'transitionend'
-// };
-// const transEndEventName = transEndEventNames[ Modernizr.prefixed( 'transition' ) ];
-// const support = { transitions : Modernizr.csstransitions };
-
 var checkTransitionsSupport = function checkTransitionsSupport() {
     var b = document.body || document.documentElement;
     var s = b.style;
@@ -160,7 +150,8 @@ var EurekaForm = function (_React$Component) {
 
         _this.state = {
             current: 0,
-            questions: []
+            questions: [],
+            wasSubmitted: false
         };
         return _this;
     }
@@ -296,7 +287,6 @@ var EurekaForm = function (_React$Component) {
             }
 
             // clear any previous error messages
-            // TODO
             this._clearError();
 
             // current question
@@ -371,6 +361,10 @@ var EurekaForm = function (_React$Component) {
     }, {
         key: '_validate',
         value: function _validate() {
+            if (!this.state.questions[this.state.current]) {
+                return false;
+            }
+
             // current question´s input
             var input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
             if (input === '') {
@@ -420,17 +414,25 @@ var EurekaForm = function (_React$Component) {
     }, {
         key: '_submit',
         value: function _submit() {
-            this.props.options.onSubmit(this.formRef);
+            var _this5 = this;
+
+            if (!this.state.wasSubmitted) {
+                this.setState(_extends({}, this.state, {
+                    wasSubmitted: true
+                }), function () {
+                    _this5.props.options.onSubmit(_this5.formRef);
+                });
+            }
         }
     }, {
         key: 'render',
         value: function render() {
-            var _this5 = this;
+            var _this6 = this;
 
             return _react2.default.createElement(
                 'form',
                 { id: 'theForm', className: 'simform', ref: function ref(formRef) {
-                        return _this5.formRef = formRef;
+                        return _this6.formRef = formRef;
                     } },
                 _react2.default.createElement(
                     'div',
@@ -602,7 +604,7 @@ exports = module.exports = __webpack_require__(21)(false);
 
 
 // module
-exports.push([module.i, ".simform {\n\tposition: relative;\n\tmargin: 0 auto;\n\tpadding: 2em 0;\n\tmax-width: 860px;\n\twidth: 100%;\n\ttext-align: left;\n\tfont-size: 2.5em;\n}\n\n.simform .submit {\n\tdisplay: none;\n}\n\n/* Question list style */\n.simform ol {\n\tmargin: 0;\n\tpadding: 0;\n\tlist-style: none;\n\tposition: relative;\n\t-webkit-transition: height 0.4s;\n\ttransition: height 0.4s;\n}\n\n.simform ol:before {\n\tcontent: '';\n\tbackground-color: rgba(0,0,0,0.1);\n\tposition: absolute;\n\tleft: 0;\n\tbottom: 0;\n\twidth: 100%;\n\theight: 2.35em;\n}\n\n.questions li {\n\tz-index: 100;\n\tposition: relative;\n\tvisibility: hidden;\n\theight: 0;\n\t-webkit-transition: visibility 0s 0.4s, height 0s 0.4s;\n\ttransition: visibility 0s 0.4s, height 0s 0.4s;\n}\n\n.questions li.current,\n.no-js .questions li {\n\tvisibility: visible;\n\theight: auto;\n\t-webkit-transition: none;\n\ttransition: none;\n}\n\n/* Labels */\n.questions li > span {\n\tdisplay: block;\n\toverflow: hidden;\n}\n\n.questions li > span label {\n\tdisplay: block;\n\t-webkit-transition: -webkit-transform 0.4s;\n\ttransition: transform 0.4s;\n\t-webkit-transform: translateY(-100%);\n\ttransform: translateY(-100%);\n}\n\n.questions li.current > span label,\n.no-js .questions li > span label {\n\t-webkit-transition: none;\n\ttransition: none;\n\t-webkit-transform: translateY(0);\n\ttransform: translateY(0);\n}\n\n.show-next .questions li.current > span label {\n\t-webkit-animation: moveUpFromDown 0.4s both;\n\tanimation: moveUpFromDown 0.4s both;\n}\n\n@-webkit-keyframes moveUpFromDown {\n\tfrom { -webkit-transform: translateY(100%); }\n\tto { -webkit-transform: translateY(0); }\n}\n\n@keyframes moveUpFromDown {\n\tfrom { -webkit-transform: translateY(100%); transform: translateY(100%); }\n\tto { -webkit-transform: translateY(0); transform: translateY(0); }\n}\n\n/* Input field */\n.questions input {\n\tdisplay: block;\n    margin: 0.3em 0 0 0;\n    padding: 0.2em 1em 0.5em 0.7em;\n    width: calc(100% - 2em);\n    border: none;\n    background: transparent;\n    color: rgba(0,0,0,0.8);\n    font-size: 1em;\n    line-height: 1;\n    opacity: 0;\n    -webkit-transition: opacity 0.3s;\n    transition: opacity 0.3s;\n    height: 2.1em;\n}\n\n.questions .current input,\n.no-js .questions input {\n\topacity: 1;\n}\n\n.questions input:focus,\n.simform button:focus {\n\toutline: none;\n}\n\n/* Next question button */\n.next {\n\tposition: absolute;\n\tright: 0;\n\tbottom: 2.15em; /* padding-bottom of form plus progress bar height */\n\tdisplay: block;\n\tpadding: 0;\n\twidth: 2em;\n\theight: 2em;\n\tborder: none;\n\tbackground: none;\n\tcolor: rgba(0,0,0,0.4);\n\ttext-align: center;\n\topacity: 0;\n\tz-index: 100;\n\tcursor: pointer;\n\t-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;\n\ttransition: transform 0.3s, opacity 0.3s;\n\t-webkit-transform: translateX(-20%);\n\ttransform: translateX(-20%);\n\tpointer-events: none;\n\t-webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n\n.next:hover {\n\tcolor: rgba(0,0,0,0.5);\n}\n\n.next::after {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcontent: \"\\E600\";\n\ttext-transform: none;\n\tfont-weight: normal;\n\tfont-style: normal;\n\tfont-variant: normal;\n\tfont-family: 'icomoon';\n\tline-height: 2;\n\tspeak: none;\n\t-webkit-font-smoothing: antialiased;\n\t-moz-osx-font-smoothing: grayscale;\n}\n\n.next.show {\n\topacity: 1;\n\t-webkit-transform: translateX(0);\n\ttransform: translateX(0);\n\tpointer-events: auto;\n}\n\n/* Progress bar */\n.simform .progress {\n\twidth: 0%;\n\theight: 0.15em;\n\tbackground: rgba(0,0,0,0.3);\n\t-webkit-transition: width 0.4s ease-in-out;\n\ttransition: width 0.4s ease-in-out;\n}\n\n.simform .progress::before {\n\tposition: absolute;\n\ttop: auto;\n\twidth: 100%;\n\theight: inherit;\n\tbackground: rgba(0,0,0,0.05);\n\tcontent: '';\n}\n\n/* Number indicator */\n.simform .number {\n\tposition: absolute;\n\tright: 0;\n\toverflow: hidden;\n\tmargin: 0.4em 0;\n\twidth: 3em;\n\tfont-weight: 700;\n\tfont-size: 0.4em;\n}\n\n.simform .number:after {\n\tposition: absolute;\n\tleft: 50%;\n\tcontent: '/';\n\topacity: 0.4;\n\t-webkit-transform: translateX(-50%);\n\ttransform: translateX(-50%);\n}\n\n.simform .number span {\n\tfloat: right;\n\twidth: 40%;\n\ttext-align: center;\n}\n\n.simform .number .number-current {\n\tfloat: left;\n}\n\n.simform .number-next {\n\tposition: absolute;\n\tleft: 0;\n}\n\n.simform.show-next .number-current {\n\t-webkit-transition: -webkit-transform 0.4s;\n\ttransition: transform 0.4s;\n\t-webkit-transform: translateY(-100%);\n\ttransform: translateY(-100%);\n}\n\n.simform.show-next .number-next {\n\t-webkit-animation: moveUpFromDown 0.4s both;\n\tanimation: moveUpFromDown 0.4s both;\n}\n\n/* Error and final message */\n.simform .error-message,\n.simform .final-message {\n\tposition: absolute;\n\tvisibility: hidden;\n\topacity: 0;\n\t-webkit-transition: opacity 0.4s;\n\ttransition: opacity 0.4s;\n}\n\n.simform .error-message {\n\tpadding: 0.4em 3.5em 0 0;\n\twidth: 100%;\n\tcolor: rgba(0,0,0,0.7);\n\tfont-style: italic;\n\tfont-size: 0.4em;\n}\n\n.final-message {\n\ttop: 50%;\n\tleft: 0;\n\tpadding: 0.5em;\n\twidth: 100%;\n\ttext-align: center;\n\t-webkit-transform: translateY(-50%);\n\ttransform: translateY(-50%);\n}\n\n.error-message.show,\n.final-message.show {\n\tvisibility: visible;\n\topacity: 1;\n}\n\n.final-message.show {\n\t-webkit-transition-delay: 0.5s;\n\ttransition-delay: 0.5s;\n}\n\n/* Final hiding of form / showing message */\n.simform-inner.hide {\n\tvisibility: hidden;\n\topacity: 0;\n\t-webkit-transition: opacity 0.3s, visibility 0s 0.3s;\n\ttransition: opacity 0.3s, visibility 0s 0.3s;\n}\n\n/* No JS Fallback */\n.no-js .simform {\n\tfont-size: 1.75em;\n}\n\n.no-js .questions li {\n\tpadding: 0 0 2em;\n}\n\n.no-js .simform .submit {\n\tdisplay: block;\n\tfloat: right;\n\tpadding: 10px 20px;\n\tborder: none;\n\tbackground: rgba(0,0,0,0.3);\n\tcolor: rgba(0,0,0,0.4);\n}\n\n.no-js .simform .controls {\n\tdisplay: none;\n}\n\n/* Remove IE clear cross */\ninput[type=text]::-ms-clear {\n    display: none;\n}\n\n/* Adjust form for smaller screens */\n@media screen and (max-width: 44.75em) {\n\t.simform {\n\t\tfont-size: 1.8em;\n\t}\n}\n\n@media screen and (max-width: 33.5625em) {\n\t.simform {\n\t\tfont-size: 1.2em;\n\t}\n}", ""]);
+exports.push([module.i, ".simform {\n\tposition: relative;\n\tmargin: 0 auto;\n\tpadding: 2em 0;\n\tmax-width: 860px;\n\twidth: 100%;\n\ttext-align: left;\n\tfont-size: 2.5em;\n}\n\n.simform .submit {\n\tdisplay: none;\n}\n\n/* Question list style */\n.simform ol {\n\tmargin: 0;\n\tpadding: 0;\n\tlist-style: none;\n\tposition: relative;\n\t-webkit-transition: height 0.4s;\n\ttransition: height 0.4s;\n}\n\n.simform ol:before {\n\tcontent: '';\n\tbackground-color: rgba(0,0,0,0.1);\n\tposition: absolute;\n\tleft: 0;\n\tbottom: 0;\n\twidth: 100%;\n\theight: 2.35em;\n}\n\n.questions li {\n\tz-index: 100;\n\tposition: relative;\n\tvisibility: hidden;\n\theight: 0;\n\t-webkit-transition: visibility 0s 0.4s, height 0s 0.4s;\n\ttransition: visibility 0s 0.4s, height 0s 0.4s;\n}\n\n.questions li.current,\n.no-js .questions li {\n\tvisibility: visible;\n\theight: auto;\n\t-webkit-transition: none;\n\ttransition: none;\n}\n\n/* Labels */\n.questions li > span {\n\tdisplay: block;\n    overflow: hidden;\n    margin-bottom: 0.8em;\n}\n\n.questions li > span label {\n\tdisplay: block;\n\t-webkit-transition: -webkit-transform 0.4s;\n\ttransition: transform 0.4s;\n\t-webkit-transform: translateY(-100%);\n\ttransform: translateY(-100%);\n}\n\n.questions li.current > span label,\n.no-js .questions li > span label {\n\t-webkit-transition: none;\n\ttransition: none;\n\t-webkit-transform: translateY(0);\n\ttransform: translateY(0);\n}\n\n.show-next .questions li.current > span label {\n\t-webkit-animation: moveUpFromDown 0.4s both;\n\tanimation: moveUpFromDown 0.4s both;\n}\n\n@-webkit-keyframes moveUpFromDown {\n\tfrom { -webkit-transform: translateY(100%); }\n\tto { -webkit-transform: translateY(0); }\n}\n\n@keyframes moveUpFromDown {\n\tfrom { -webkit-transform: translateY(100%); transform: translateY(100%); }\n\tto { -webkit-transform: translateY(0); transform: translateY(0); }\n}\n\n/* Input field */\n.questions input {\n\tdisplay: block;\n    margin: 0.3em 0 0 0;\n    padding: 0.2em 1em 0.5em 0.7em;\n    width: calc(100% - 2em);\n    border: none;\n    background: transparent;\n    color: rgba(0,0,0,0.8);\n    font-size: 1em;\n    line-height: 1;\n    opacity: 0;\n    -webkit-transition: opacity 0.3s;\n    transition: opacity 0.3s;\n    /* height: 2.1em; */\n}\n\n.questions .current input,\n.no-js .questions input {\n\topacity: 1;\n}\n\n.questions input:focus,\n.simform button:focus {\n\toutline: none;\n}\n\n/* Next question button */\n.next {\n\tposition: absolute;\n\tright: 0;\n\tbottom: 2.15em; /* padding-bottom of form plus progress bar height */\n\tdisplay: block;\n\tpadding: 0;\n\twidth: 2em;\n\theight: 2em;\n\tborder: none;\n\tbackground: none;\n\tcolor: rgba(0,0,0,0.4);\n\ttext-align: center;\n\topacity: 0;\n\tz-index: 100;\n\tcursor: pointer;\n\t-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;\n\ttransition: transform 0.3s, opacity 0.3s;\n\t-webkit-transform: translateX(-20%);\n\ttransform: translateX(-20%);\n\tpointer-events: none;\n\t-webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n}\n\n.next:hover {\n\tcolor: rgba(0,0,0,0.5);\n}\n\n.next::after {\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\twidth: 100%;\n\theight: 100%;\n\tcontent: \"\\E600\";\n\ttext-transform: none;\n\tfont-weight: normal;\n\tfont-style: normal;\n\tfont-variant: normal;\n\tfont-family: 'icomoon';\n\tline-height: 2;\n\tspeak: none;\n\t-webkit-font-smoothing: antialiased;\n\t-moz-osx-font-smoothing: grayscale;\n}\n\n.next.show {\n\topacity: 1;\n\t-webkit-transform: translateX(0);\n\ttransform: translateX(0);\n\tpointer-events: auto;\n}\n\n/* Progress bar */\n.simform .progress {\n\twidth: 0%;\n\theight: 0.15em;\n\tbackground: rgba(0,0,0,0.3);\n\t-webkit-transition: width 0.4s ease-in-out;\n\ttransition: width 0.4s ease-in-out;\n}\n\n.simform .progress::before {\n\tposition: absolute;\n\ttop: auto;\n\twidth: 100%;\n\theight: inherit;\n\tbackground: rgba(0,0,0,0.05);\n\tcontent: '';\n}\n\n/* Number indicator */\n.simform .number {\n\tposition: absolute;\n\tright: 0;\n\toverflow: hidden;\n\tmargin: 0.4em 0;\n\twidth: 3em;\n\tfont-weight: 700;\n\tfont-size: 0.4em;\n}\n\n.simform .number:after {\n\tposition: absolute;\n\tleft: 50%;\n\tcontent: '/';\n\topacity: 0.4;\n\t-webkit-transform: translateX(-50%);\n\ttransform: translateX(-50%);\n}\n\n.simform .number span {\n\tfloat: right;\n\twidth: 40%;\n\ttext-align: center;\n}\n\n.simform .number .number-current {\n\tfloat: left;\n}\n\n.simform .number-next {\n\tposition: absolute;\n\tleft: 0;\n}\n\n.simform.show-next .number-current {\n\t-webkit-transition: -webkit-transform 0.4s;\n\ttransition: transform 0.4s;\n\t-webkit-transform: translateY(-100%);\n\ttransform: translateY(-100%);\n}\n\n.simform.show-next .number-next {\n\t-webkit-animation: moveUpFromDown 0.4s both;\n\tanimation: moveUpFromDown 0.4s both;\n}\n\n/* Error and final message */\n.simform .error-message,\n.simform .final-message {\n\tposition: absolute;\n\tvisibility: hidden;\n\topacity: 0;\n\t-webkit-transition: opacity 0.4s;\n\ttransition: opacity 0.4s;\n}\n\n.simform .error-message {\n\tpadding: 0.4em 3.5em 0 0;\n\twidth: 100%;\n\tcolor: rgba(0,0,0,0.7);\n\tfont-style: italic;\n\tfont-size: 0.4em;\n}\n\n.final-message {\n\ttop: 50%;\n\tleft: 0;\n\tpadding: 0.5em;\n\twidth: 100%;\n\ttext-align: center;\n\t-webkit-transform: translateY(-50%);\n\ttransform: translateY(-50%);\n}\n\n.error-message.show,\n.final-message.show {\n\tvisibility: visible;\n\topacity: 1;\n}\n\n.final-message.show {\n\t-webkit-transition-delay: 0.5s;\n\ttransition-delay: 0.5s;\n}\n\n/* Final hiding of form / showing message */\n.simform-inner.hide {\n\tvisibility: hidden;\n\topacity: 0;\n\t-webkit-transition: opacity 0.3s, visibility 0s 0.3s;\n\ttransition: opacity 0.3s, visibility 0s 0.3s;\n}\n\n/* No JS Fallback */\n.no-js .simform {\n\tfont-size: 1.75em;\n}\n\n.no-js .questions li {\n\tpadding: 0 0 2em;\n}\n\n.no-js .simform .submit {\n\tdisplay: block;\n\tfloat: right;\n\tpadding: 10px 20px;\n\tborder: none;\n\tbackground: rgba(0,0,0,0.3);\n\tcolor: rgba(0,0,0,0.4);\n}\n\n.no-js .simform .controls {\n\tdisplay: none;\n}\n\n/* Remove IE clear cross */\ninput[type=text]::-ms-clear {\n    display: none;\n}\n\n/* Adjust form for smaller screens */\n@media screen and (max-width: 44.75em) {\n\t.simform {\n\t\tfont-size: 1.8em;\n\t}\n}\n\n@media screen and (max-width: 33.5625em) {\n\t.simform {\n\t\tfont-size: 1.2em;\n\t}\n}", ""]);
 
 // exports
 

@@ -2,16 +2,6 @@ import React from 'react';
 
 import "./style.css"
 
-// const transEndEventNames = {
-//     'WebkitTransition': 'webkitTransitionEnd',
-//     'MozTransition': 'transitionend',
-//     'OTransition': 'oTransitionEnd',
-//     'msTransition': 'MSTransitionEnd',
-//     'transition': 'transitionend'
-// };
-// const transEndEventName = transEndEventNames[ Modernizr.prefixed( 'transition' ) ];
-// const support = { transitions : Modernizr.csstransitions };
-
 const checkTransitionsSupport = () => {
     const b = document.body || document.documentElement;
     const s = b.style;
@@ -52,7 +42,8 @@ class EurekaForm extends React.Component {
 
         this.state = {
             current: 0,
-            questions: []
+            questions: [],
+            wasSubmitted: false
         };
     }
 
@@ -150,7 +141,7 @@ class EurekaForm extends React.Component {
     _nextQuestion() {
 		if(!this._validate()) {
 			return false;
-		}
+        }
 
 		// checks HTML5 validation
 		if (this.supportsHTML5Forms) {
@@ -173,12 +164,11 @@ class EurekaForm extends React.Component {
 		}
 
 		// check if form is filled
-		if (this.state.current === this.state.questionsCount - 1 ) {
+		if (this.state.current === this.state.questionsCount - 1) {
 			this.isFilled = true;
 		}
 
         // clear any previous error messages
-        // TODO
 		this._clearError();
 
 		// current question
@@ -253,6 +243,10 @@ class EurekaForm extends React.Component {
     }
     
     _validate() {
+        if (!this.state.questions[this.state.current]) {
+            return false;
+        }
+
 		// current question´s input
 		const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
 		if (input === '') {
@@ -298,7 +292,14 @@ class EurekaForm extends React.Component {
     }
     
     _submit() {
-		this.props.options.onSubmit(this.formRef);
+        if (!this.state.wasSubmitted) {
+            this.setState({
+                ...this.state,
+                wasSubmitted: true
+            }, () => {
+                this.props.options.onSubmit(this.formRef);
+            });
+        }
 	}
 
     render() {

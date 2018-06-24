@@ -52,7 +52,8 @@
 /* Labels */
 .questions li > span {
 	display: block;
-	overflow: hidden;
+    overflow: hidden;
+    margin-bottom: 0.8em;
 }
 
 .questions li > span label {
@@ -100,7 +101,7 @@
     opacity: 0;
     -webkit-transition: opacity 0.3s;
     transition: opacity 0.3s;
-    height: 2.1em;
+    /* height: 2.1em; */
 }
 
 .questions .current input,
