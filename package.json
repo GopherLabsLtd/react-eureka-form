@@ -1,7 +1,7 @@
 {
-  "name": "react-photoswipe-component",
-  "version": "1.0.12",
-  "description": "A React component for PhotoSwipe lightbox",
+  "name": "react-eureka",
+  "version": "1.0.0",
+  "description": "A React minimalistic wizard form",
   "main": "build/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GopherLabsLtd/react-photoswipe.git"
+    "url": "git+https://github.com/GopherLabsLtd/react-eureka-form.git"
   },
   "keywords": [
     "react",
@@ -20,11 +20,10 @@
   "author": "Gopher Labs Ltd. - Eliad Moosavi <hello@gopher.it> (https://gopher.it)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/GopherLabsLtd/react-photoswipe/issues"
+    "url": "https://github.com/GopherLabsLtd/react-eureka-form/issues"
   },
-  "homepage": "https://github.com/GopherLabsLtd/react-photoswipe#readme",
+  "homepage": "https://github.com/GopherLabsLtd/react-eureka-form#readme",
   "dependencies": {
-    "photoswipe": "^4.1.2",
     "react": "^16.0.0",
     "webpack": "^3.8.1"
   },
