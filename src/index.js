@@ -2,42 +2,49 @@ import React from 'react';
 
 import "./style.css"
 
-const transEndEventNames = {
-    'WebkitTransition': 'webkitTransitionEnd',
-    'MozTransition': 'transitionend',
-    'OTransition': 'oTransitionEnd',
-    'msTransition': 'MSTransitionEnd',
-    'transition': 'transitionend'
-};
+// const transEndEventNames = {
+//     'WebkitTransition': 'webkitTransitionEnd',
+//     'MozTransition': 'transitionend',
+//     'OTransition': 'oTransitionEnd',
+//     'msTransition': 'MSTransitionEnd',
+//     'transition': 'transitionend'
+// };
 // const transEndEventName = transEndEventNames[ Modernizr.prefixed( 'transition' ) ];
 // const support = { transitions : Modernizr.csstransitions };
 
-function extend( a, b ) {
-    for( var key in b ) {
-        if( b.hasOwnProperty( key ) ) {
-            a[key] = b[key];
+const checkTransitionsSupport = () => {
+    const b = document.body || document.documentElement;
+    const s = b.style;
+    let p = 'transition';
+
+    if (typeof s[p] == 'string') {
+        return true;
+    }
+
+    // Tests for vendor specific prop
+    const v = ['Moz', 'webkit', 'Webkit', 'Khtml', 'O', 'ms'];
+    p = p.charAt(0).toUpperCase() + p.substr(1);
+
+    for (let i = 0; i < v.length; i++) {
+        if (typeof s[v[i] + p] == 'string') {
+            return true;
         }
     }
 
-    return a;
+    return false;
 }
 
-function stepsForm( el, options ) {
-    this.el = el;
-    this.options = extend( {}, this.options );
-    extend( this.options, options );
-    this._init();
-}
+const supportsTransitions = checkTransitionsSupport();
 
 // generates a unique id
-function randomID() {
+const randomID = () => {
     const id = Math.random().toString(36).substr(2, 9);
     if (document.getElementById(id)) {
         return randomID();
     }
 
     return id;
-}
+};
 
 class EurekaForm extends React.Component {
     constructor(props) {
@@ -107,8 +114,6 @@ class EurekaForm extends React.Component {
     }
 
     _initEvents() {
-        const self = this;
-
         // first input
         const firstElInput = this.state.questions[this.state.current].querySelector('input, textarea, select');
         
@@ -187,44 +192,52 @@ class EurekaForm extends React.Component {
             // update progress bar
             this._progress();
 
-            // if(!this.isFilled) {
-            //     // change the current question number/status
-            //     this._updateQuestionNumber();
+            let nextQuestion;
 
-            //     // add class "show-next" to form element (start animations)
-            //     classie.addClass( this.el, 'show-next' );
+            if(!this.isFilled) {
+                // change the current question number/status
+                this._updateQuestionNumber();
 
-            //     // remove class "current" from current question and add it to the next one
-            //     // current question
-            //     var nextQuestion = this.questions[ this.current ];
-            //     classie.removeClass( currentQuestion, 'current' );
-            //     classie.addClass( nextQuestion, 'current' );
-            // }
+                // add class "show-next" to form element (start animations)
+                this.formRef.classList.add('show-next');
 
-            // // after animation ends, remove class "show-next" from form element and change current question placeholder
-            // var self = this,
-            //     onEndTransitionFn = function( ev ) {
-            //         if( support.transitions ) {
-            //             this.removeEventListener( transEndEventName, onEndTransitionFn );
-            //         }
-            //         if( self.isFilled ) {
-            //             self._submit();
-            //         }
-            //         else {
-            //             classie.removeClass( self.el, 'show-next' );
-            //             self.currentNum.innerHTML = self.nextQuestionNum.innerHTML;
-            //             self.questionStatus.removeChild( self.nextQuestionNum );
-            //             // force the focus on the next input
-            //             nextQuestion.querySelector( 'input, textarea, select' ).focus();
-            //         }
-            //     };
+                // remove class "current" from current question and add it to the next one
+                // current question
+                nextQuestion = this.state.questions[this.state.current];
+                currentQuestion.classList.remove('current');
+                nextQuestion.classList.add('current');
+            }
 
-            // if( support.transitions ) {
-            //     this.progress.addEventListener( transEndEventName, onEndTransitionFn );
-            // }
-            // else {
-            //     onEndTransitionFn();
-            // }
+            // after animation ends, remove class "show-next" from form element and change current question placeholder
+            const self = this;
+            const onEndTransitionFn = ev => {
+                if (supportsTransitions) {
+                    this.progress.removeEventListener("transitionend", onEndTransitionFn);
+                }
+
+                if(self.isFilled) {
+                    this._submit();
+                }
+
+                else {
+                    this.formRef.classList.remove('show-next');
+
+                    this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
+                    this.questionStatus.removeChild(this.nextQuestionNum);
+
+                    // force the focus on the next input
+                    nextQuestion.querySelector('input, textarea, select').focus();
+                }
+            };
+
+            // onEndTransitionFn();
+
+            if (supportsTransitions) {
+                this.progress.addEventListener("transitionend", onEndTransitionFn);
+            }
+            else {
+                onEndTransitionFn();
+            }
         });
 	}
 
@@ -250,6 +263,16 @@ class EurekaForm extends React.Component {
 
 		return true;
     }
+
+    _updateQuestionNumber() {
+		// first, create next question number placeholder
+		this.nextQuestionNum = document.createElement('span');
+		this.nextQuestionNum.className = 'number-next';
+        this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
+        
+		// insert it in the DOM
+		this.questionStatus.appendChild(this.nextQuestionNum);
+	}
     
     _showError(err) {
 		let message = '';
@@ -272,6 +295,10 @@ class EurekaForm extends React.Component {
     
     _clearError() {
 		this.error.classList.remove('show');
+    }
+    
+    _submit() {
+		this.props.options.onSubmit(this.formRef);
 	}
 
     render() {

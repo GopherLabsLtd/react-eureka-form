@@ -61,11 +61,28 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
-/* 0 */
+/* 0 */,
+/* 1 */,
+/* 2 */,
+/* 3 */,
+/* 4 */,
+/* 5 */,
+/* 6 */,
+/* 7 */,
+/* 8 */,
+/* 9 */,
+/* 10 */,
+/* 11 */,
+/* 12 */,
+/* 13 */,
+/* 14 */,
+/* 15 */,
+/* 16 */,
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -75,11 +92,11 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = __webpack_require__(1);
+var _react = __webpack_require__(18);
 
 var _react2 = _interopRequireDefault(_react);
 
-__webpack_require__(2);
+__webpack_require__(19);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -89,42 +106,49 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var transEndEventNames = {
-    'WebkitTransition': 'webkitTransitionEnd',
-    'MozTransition': 'transitionend',
-    'OTransition': 'oTransitionEnd',
-    'msTransition': 'MSTransitionEnd',
-    'transition': 'transitionend'
-};
+// const transEndEventNames = {
+//     'WebkitTransition': 'webkitTransitionEnd',
+//     'MozTransition': 'transitionend',
+//     'OTransition': 'oTransitionEnd',
+//     'msTransition': 'MSTransitionEnd',
+//     'transition': 'transitionend'
+// };
 // const transEndEventName = transEndEventNames[ Modernizr.prefixed( 'transition' ) ];
 // const support = { transitions : Modernizr.csstransitions };
 
-function extend(a, b) {
-    for (var key in b) {
-        if (b.hasOwnProperty(key)) {
-            a[key] = b[key];
+var checkTransitionsSupport = function checkTransitionsSupport() {
+    var b = document.body || document.documentElement;
+    var s = b.style;
+    var p = 'transition';
+
+    if (typeof s[p] == 'string') {
+        return true;
+    }
+
+    // Tests for vendor specific prop
+    var v = ['Moz', 'webkit', 'Webkit', 'Khtml', 'O', 'ms'];
+    p = p.charAt(0).toUpperCase() + p.substr(1);
+
+    for (var i = 0; i < v.length; i++) {
+        if (typeof s[v[i] + p] == 'string') {
+            return true;
         }
     }
 
-    return a;
-}
+    return false;
+};
 
-function stepsForm(el, options) {
-    this.el = el;
-    this.options = extend({}, this.options);
-    extend(this.options, options);
-    this._init();
-}
+var supportsTransitions = checkTransitionsSupport();
 
 // generates a unique id
-function randomID() {
+var randomID = function randomID() {
     var id = Math.random().toString(36).substr(2, 9);
     if (document.getElementById(id)) {
         return randomID();
     }
 
     return id;
-}
+};
 
 var EurekaForm = function (_React$Component) {
     _inherits(EurekaForm, _React$Component);
@@ -204,8 +228,6 @@ var EurekaForm = function (_React$Component) {
         key: '_initEvents',
         value: function _initEvents() {
             var _this3 = this;
-
-            var self = this;
 
             // first input
             var firstElInput = this.state.questions[this.state.current].querySelector('input, textarea, select');
@@ -287,44 +309,49 @@ var EurekaForm = function (_React$Component) {
                 // update progress bar
                 _this4._progress();
 
-                // if(!this.isFilled) {
-                //     // change the current question number/status
-                //     this._updateQuestionNumber();
+                var nextQuestion = void 0;
 
-                //     // add class "show-next" to form element (start animations)
-                //     classie.addClass( this.el, 'show-next' );
+                if (!_this4.isFilled) {
+                    // change the current question number/status
+                    _this4._updateQuestionNumber();
 
-                //     // remove class "current" from current question and add it to the next one
-                //     // current question
-                //     var nextQuestion = this.questions[ this.current ];
-                //     classie.removeClass( currentQuestion, 'current' );
-                //     classie.addClass( nextQuestion, 'current' );
-                // }
+                    // add class "show-next" to form element (start animations)
+                    _this4.formRef.classList.add('show-next');
 
-                // // after animation ends, remove class "show-next" from form element and change current question placeholder
-                // var self = this,
-                //     onEndTransitionFn = function( ev ) {
-                //         if( support.transitions ) {
-                //             this.removeEventListener( transEndEventName, onEndTransitionFn );
-                //         }
-                //         if( self.isFilled ) {
-                //             self._submit();
-                //         }
-                //         else {
-                //             classie.removeClass( self.el, 'show-next' );
-                //             self.currentNum.innerHTML = self.nextQuestionNum.innerHTML;
-                //             self.questionStatus.removeChild( self.nextQuestionNum );
-                //             // force the focus on the next input
-                //             nextQuestion.querySelector( 'input, textarea, select' ).focus();
-                //         }
-                //     };
+                    // remove class "current" from current question and add it to the next one
+                    // current question
+                    nextQuestion = _this4.state.questions[_this4.state.current];
+                    currentQuestion.classList.remove('current');
+                    nextQuestion.classList.add('current');
+                }
 
-                // if( support.transitions ) {
-                //     this.progress.addEventListener( transEndEventName, onEndTransitionFn );
-                // }
-                // else {
-                //     onEndTransitionFn();
-                // }
+                // after animation ends, remove class "show-next" from form element and change current question placeholder
+                var self = _this4;
+                var onEndTransitionFn = function onEndTransitionFn(ev) {
+                    if (supportsTransitions) {
+                        _this4.progress.removeEventListener("transitionend", onEndTransitionFn);
+                    }
+
+                    if (self.isFilled) {
+                        _this4._submit();
+                    } else {
+                        _this4.formRef.classList.remove('show-next');
+
+                        _this4.currentNum.innerHTML = _this4.nextQuestionNum.innerHTML;
+                        _this4.questionStatus.removeChild(_this4.nextQuestionNum);
+
+                        // force the focus on the next input
+                        nextQuestion.querySelector('input, textarea, select').focus();
+                    }
+                };
+
+                // onEndTransitionFn();
+
+                if (supportsTransitions) {
+                    _this4.progress.addEventListener("transitionend", onEndTransitionFn);
+                } else {
+                    onEndTransitionFn();
+                }
             });
         }
 
@@ -355,6 +382,17 @@ var EurekaForm = function (_React$Component) {
             return true;
         }
     }, {
+        key: '_updateQuestionNumber',
+        value: function _updateQuestionNumber() {
+            // first, create next question number placeholder
+            this.nextQuestionNum = document.createElement('span');
+            this.nextQuestionNum.className = 'number-next';
+            this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
+
+            // insert it in the DOM
+            this.questionStatus.appendChild(this.nextQuestionNum);
+        }
+    }, {
         key: '_showError',
         value: function _showError(err) {
             var message = '';
@@ -378,6 +416,11 @@ var EurekaForm = function (_React$Component) {
         key: '_clearError',
         value: function _clearError() {
             this.error.classList.remove('show');
+        }
+    }, {
+        key: '_submit',
+        value: function _submit() {
+            this.props.options.onSubmit(this.formRef);
         }
     }, {
         key: 'render',
@@ -514,19 +557,19 @@ var EurekaForm = function (_React$Component) {
 module.exports = { EurekaForm: EurekaForm };
 
 /***/ }),
-/* 1 */
+/* 18 */
 /***/ (function(module, exports) {
 
 module.exports = require("react");
 
 /***/ }),
-/* 2 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(3);
+var content = __webpack_require__(20);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -534,7 +577,7 @@ var transform;
 var options = {"hmr":true}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(5)(content, options);
+var update = __webpack_require__(22)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -551,10 +594,10 @@ if(false) {
 }
 
 /***/ }),
-/* 3 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(4)(false);
+exports = module.exports = __webpack_require__(21)(false);
 // imports
 
 
@@ -565,7 +608,7 @@ exports.push([module.i, ".simform {\n\tposition: relative;\n\tmargin: 0 auto;\n\
 
 
 /***/ }),
-/* 4 */
+/* 21 */
 /***/ (function(module, exports) {
 
 /*
@@ -647,7 +690,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 5 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -703,7 +746,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(6);
+var	fixUrls = __webpack_require__(23);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -1019,7 +1062,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 6 */
+/* 23 */
 /***/ (function(module, exports) {
 
 
