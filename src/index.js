@@ -1,6 +1,6 @@
 import React from 'react';
 
-import "./style.css"
+import "./style.css";
 
 const checkTransitionsSupport = () => {
     const b = document.body || document.documentElement;
@@ -22,8 +22,7 @@ const checkTransitionsSupport = () => {
     }
 
     return false;
-}
-
+};
 const supportsTransitions = checkTransitionsSupport();
 
 // generates a unique id
@@ -56,7 +55,7 @@ class EurekaForm extends React.Component {
 
         }, () => {
             // show first question
-            // classie.addClass( this.questions[0], 'current' );
+            this.state.questions[0].classList.add('current');
 
             // next question control
             this.ctrlNext = this.formRef.querySelector( 'button.next' );
@@ -250,7 +249,7 @@ class EurekaForm extends React.Component {
 		// current question´s input
 		const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
 		if (input === '') {
-            this._showError( 'EMPTYSTR' );
+            this._showError('EMPTYSTR');
             
 			return false;
 		}
@@ -303,39 +302,28 @@ class EurekaForm extends React.Component {
 	}
 
     render() {
+      const { questions } = this.props.options;
+      let customClass = "";
+      
+      if (this.props.className) {
+        customClass = this.props.className + " ";
+      }
+
       return (
-        <form id="theForm" className="simform" ref={formRef => this.formRef = formRef}>
+        <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
             <div className="simform-inner">
                 <ol className="questions">
-                    <li className="current">
-                        <span><label htmlFor="q1">What's your email?</label></span>
-                        <input id="q1" name="q1" type="email"/>
-                    </li>
+                    {questions.map((question, i) =>
+                        <li>
+                            <span>
+                                <label htmlFor={`q${i}`}>
+                                    {question.title}
+                                </label>
+                            </span>
 
-                    <li>
-                        <span><label htmlFor="q2">Where do you live?</label></span>
-                        <input id="q2" name="q2" type="text"/>
-                    </li>
-
-                    <li>
-                        <span><label htmlFor="q3">What time do you go to work?</label></span>
-                        <input id="q3" name="q3" type="text"/>
-                    </li>
-
-                    <li>
-                        <span><label htmlFor="q4">How do you like your veggies?</label></span>
-                        <input id="q4" name="q4" type="text"/>
-                    </li>
-
-                    <li>
-                        <span><label htmlFor="q5">What book inspires you?</label></span>
-                        <input id="q5" name="q5" type="text"/>
-                    </li>
-
-                    <li>
-                        <span><label htmlFor="q6">What's your profession?</label></span>
-                        <input id="q6" name="q6" type="text"/>
-                    </li>
+                            <input id={`q${i}`} name={`q${i}`} type={question.inputType || "text"} />
+                        </li>
+                    )}
                 </ol>
                 
                 <button className="submit" type="submit">Send answers</button>

@@ -127,7 +127,6 @@ var checkTransitionsSupport = function checkTransitionsSupport() {
 
     return false;
 };
-
 var supportsTransitions = checkTransitionsSupport();
 
 // generates a unique id
@@ -168,7 +167,7 @@ var EurekaForm = function (_React$Component) {
 
             }), function () {
                 // show first question
-                // classie.addClass( this.questions[0], 'current' );
+                _this2.state.questions[0].classList.add('current');
 
                 // next question control
                 _this2.ctrlNext = _this2.formRef.querySelector('button.next');
@@ -429,9 +428,17 @@ var EurekaForm = function (_React$Component) {
         value: function render() {
             var _this6 = this;
 
+            var questions = this.props.options.questions;
+
+            var customClass = "";
+
+            if (this.props.className) {
+                customClass = this.props.className + " ";
+            }
+
             return _react2.default.createElement(
                 'form',
-                { id: 'theForm', className: 'simform', ref: function ref(formRef) {
+                { id: this.props.id, className: customClass + "simform", ref: function ref(formRef) {
                         return _this6.formRef = formRef;
                     } },
                 _react2.default.createElement(
@@ -440,90 +447,22 @@ var EurekaForm = function (_React$Component) {
                     _react2.default.createElement(
                         'ol',
                         { className: 'questions' },
-                        _react2.default.createElement(
-                            'li',
-                            { className: 'current' },
-                            _react2.default.createElement(
-                                'span',
+                        questions.map(function (question, i) {
+                            return _react2.default.createElement(
+                                'li',
                                 null,
                                 _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q1' },
-                                    'What\'s your email?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q1', name: 'q1', type: 'email' })
-                        ),
-                        _react2.default.createElement(
-                            'li',
-                            null,
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q2' },
-                                    'Where do you live?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q2', name: 'q2', type: 'text' })
-                        ),
-                        _react2.default.createElement(
-                            'li',
-                            null,
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q3' },
-                                    'What time do you go to work?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q3', name: 'q3', type: 'text' })
-                        ),
-                        _react2.default.createElement(
-                            'li',
-                            null,
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q4' },
-                                    'How do you like your veggies?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q4', name: 'q4', type: 'text' })
-                        ),
-                        _react2.default.createElement(
-                            'li',
-                            null,
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q5' },
-                                    'What book inspires you?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q5', name: 'q5', type: 'text' })
-                        ),
-                        _react2.default.createElement(
-                            'li',
-                            null,
-                            _react2.default.createElement(
-                                'span',
-                                null,
-                                _react2.default.createElement(
-                                    'label',
-                                    { htmlFor: 'q6' },
-                                    'What\'s your profession?'
-                                )
-                            ),
-                            _react2.default.createElement('input', { id: 'q6', name: 'q6', type: 'text' })
-                        )
+                                    'span',
+                                    null,
+                                    _react2.default.createElement(
+                                        'label',
+                                        { htmlFor: 'q' + i },
+                                        question.title
+                                    )
+                                ),
+                                _react2.default.createElement('input', { id: 'q' + i, name: 'q' + i, type: question.inputType || "text" })
+                            );
+                        })
                     ),
                     _react2.default.createElement(
                         'button',
