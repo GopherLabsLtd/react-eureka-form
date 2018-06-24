@@ -1,6 +1,8 @@
 import React from 'react';
 
-import "./style.css";
+import './style.css';
+
+import ICONS_ARROW from 'react-icons/lib/md/arrow-forward';
 
 const checkTransitionsSupport = () => {
     const b = document.body || document.documentElement;
@@ -55,21 +57,22 @@ class EurekaForm extends React.Component {
 
         }, () => {
             // show first question
-            this.state.questions[0].classList.add('current');
+            const firstQuestion = this.state.questions[0];
+            firstQuestion.classList.add('current');
 
             // next question control
-            this.ctrlNext = this.formRef.querySelector( 'button.next' );
-            this.ctrlNext.setAttribute( 'aria-label', 'Next' );
+            this.ctrlNext = this.formRef.querySelector('button.next');
+            this.ctrlNext.setAttribute('aria-label', 'Next');
 
             // // progress bar
-            this.progress = this.formRef.querySelector( 'div.progress' );
+            this.progress = this.formRef.querySelector('div.progress');
             
             // // set progressbar attributes
-            this.progress.setAttribute( 'role', 'progressbar' );
-            this.progress.setAttribute( 'aria-readonly', 'true' );
-            this.progress.setAttribute( 'aria-valuemin', '0' );
-            this.progress.setAttribute( 'aria-valuemax', '100' );
-            this.progress.setAttribute( 'aria-valuenow', '0' );
+            this.progress.setAttribute('role', 'progressbar');
+            this.progress.setAttribute('aria-readonly', 'true');
+            this.progress.setAttribute('aria-valuemin', '0');
+            this.progress.setAttribute('aria-valuemax', '100');
+            this.progress.setAttribute('aria-valuenow', '0');
 
             // // question number status
             this.questionStatus = this.formRef.querySelector('span.number');
@@ -115,7 +118,11 @@ class EurekaForm extends React.Component {
         };
 
 		// show the next question control first time the input gets focused
-		firstElInput.addEventListener('focus', onFocusStartFn);
+        firstElInput.addEventListener('focus', onFocusStartFn);
+        
+        if (this.props.autoFocus) {
+            firstElInput.focus();
+        }
 
 		// show next question
 		this.ctrlNext.addEventListener('click', ev => {
@@ -172,6 +179,7 @@ class EurekaForm extends React.Component {
 
 		// current question
 		const currentQuestion = this.state.questions[this.state.current];
+        currentQuestion.querySelector('input, textarea, select').blur();
 
         this.setState({
             ...this.state,
@@ -237,8 +245,6 @@ class EurekaForm extends React.Component {
         
 		// update the progressbar's aria-valuenow attribute
         this.progress.setAttribute('aria-valuenow', currentProgress);
-        
-        console.log(this.progress);
     }
     
     _validate() {
@@ -296,13 +302,20 @@ class EurekaForm extends React.Component {
                 ...this.state,
                 wasSubmitted: true
             }, () => {
-                this.props.options.onSubmit(this.formRef);
+                this.props.onSubmit(this.formRef);
+
+                // Disable all inputs
+                this.state.questions.forEach(question => {
+                    question.querySelector('input, textarea, select').setAttribute("disabled", true);
+                });
+
+                // Remove next button
+                this.ctrlNext.style.display = "none";
             });
         }
 	}
 
     render() {
-      const { questions } = this.props.options;
       let customClass = "";
       
       if (this.props.className) {
@@ -313,15 +326,15 @@ class EurekaForm extends React.Component {
         <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
             <div className="simform-inner">
                 <ol className="questions">
-                    {questions.map((question, i) =>
-                        <li>
+                    {this.props.questions.map((question, i) =>
+                        <li key={`eureka-question-${i}`}>
                             <span>
-                                <label htmlFor={`q${i}`}>
+                                <label htmlFor={`eureka-question-${i}`}>
                                     {question.title}
                                 </label>
                             </span>
 
-                            <input id={`q${i}`} name={`q${i}`} type={question.inputType || "text"} />
+                            <input id={`eureka-question-${i}`} name={`eureka-question-${i}`} type={question.inputType || "text"} />
                         </li>
                     )}
                 </ol>
@@ -330,7 +343,7 @@ class EurekaForm extends React.Component {
 
                 <div className="controls">
                     <button className="next">
-                        Next
+                        <ICONS_ARROW />
                     </button>
 
                     <div className="progress"></div>

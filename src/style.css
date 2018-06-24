@@ -1,9 +1,5 @@
 .simform {
 	position: relative;
-	margin: 0 auto;
-	padding: 2em 0;
-	max-width: 860px;
-	width: 100%;
 	text-align: left;
 	font-size: 2.5em;
 }
@@ -117,17 +113,16 @@
 /* Next question button */
 .next {
 	position: absolute;
-	right: 0;
-	bottom: 2.15em; /* padding-bottom of form plus progress bar height */
+    right: 0.6em;
+    bottom: 1.2em;
 	display: block;
 	padding: 0;
-	width: 2em;
-	height: 2em;
 	border: none;
 	background: none;
 	color: rgba(0,0,0,0.4);
 	text-align: center;
-	opacity: 0;
+    opacity: 0;
+    font-size: 30px;
 	z-index: 100;
 	cursor: pointer;
 	-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;
@@ -140,24 +135,6 @@
 
 .next:hover {
 	color: rgba(0,0,0,0.5);
-}
-
-.next::after {
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	content: "\e600";
-	text-transform: none;
-	font-weight: normal;
-	font-style: normal;
-	font-variant: normal;
-	font-family: 'icomoon';
-	line-height: 2;
-	speak: none;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
 }
 
 .next.show {
