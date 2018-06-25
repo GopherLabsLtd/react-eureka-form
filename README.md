@@ -1,6 +1,6 @@
 # React Eureka [![npm](https://img.shields.io/npm/v/react-eureka.svg)](https://www.npmjs.com/package/react-eureka) [![npm](https://img.shields.io/npm/dm/react-eureka.svg)](https://www.npmjs.com/package/react-eureka)
 
-<img src="./src/logo.svg" style="max-width: 250px">
+<img src="./src/logo.png" style="max-width: 250px">
 
 A minimalistic form wizard component for React
 
