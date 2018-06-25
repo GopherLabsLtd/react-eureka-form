@@ -1,6 +1,6 @@
 {
   "name": "react-eureka",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A React minimalistic wizard form",
   "main": "build/index.js",
   "scripts": {
