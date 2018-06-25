@@ -1,56 +1,92 @@
-<!-- # React PhotoSwipe Component [![npm](https://img.shields.io/npm/v/react-photoswipe-component.svg)](https://www.npmjs.com/package/react-photoswipe-component) [![npm](https://img.shields.io/npm/dw/react-photoswipe-component.svg)](https://www.npmjs.com/package/react-photoswipe-component)
-A React component for PhotoSwipe lightbox
+# React Eureka [![npm](https://img.shields.io/npm/v/react-eureka.svg)](https://www.npmjs.com/package/react-eureka) [![npm](https://img.shields.io/npm/dm/react-eureka.svg)](https://www.npmjs.com/package/react-eureka)
+A minimalistic form wizard component for React
 
 ## Installation
-
-**NPM**
 ```sh
-npm install --save photoswipe react-photoswipe-component
+npm install --save react-eureka
 ```
 
 ## How to Use:
-**JS:**
 ```js
-import { PhotoSwipeGallery } from 'react-photoswipe-component'
-import "../node_modules/photoswipe/dist/photoswipe.css"
-import "../node_modules/photoswipe/dist/default-skin/default-skin.css"
-import "../node_modules/react-photoswipe-component/src/style.css"
+import React, { Component } from 'react';
 
-const PHOTO_ITEMS = [
-    {
-        src: 'http://via.placeholder.com/800x394',
-        w: 800,
-        h: 394,
-        caption: "Test Cap"
-    },
-    {
-        src: 'http://via.placeholder.com/1200x900',
-        w: 1200,
-        h: 900,
-        caption: "Caption 123"
-    }
+import { EurekaForm } from 'react-eureka';
+
+const questions = [
+  {
+    title: "What's your email?",
+    inputType: "email"
+  },
+  {
+    title: "Where do you live?",
+  },
+  {
+    title: "What time do you go to work?",
+  },
+  {
+    title: "How do you like your veggies?",
+  },
+  {
+    title: "What book inspires you?",
+  },
+  {
+    title: "What's your profession?",
+  },
 ];
 
-class SwipePhotoTest extends React.Component {
-  render() {    
+class EurekaDemo extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      formSubmitted: false
+    };
+  }
+
+  render() {
+    const { formSubmitted } = this.state;
+
     return (
       <div>
-        <PhotoSwipeGallery items={PHOTO_ITEMS} />
-        
-        {/* Or you can try this */}
-        
-        <PhotoSwipeGallery items={PHOTO_ITEMS}>
-            Open Gallery
-        </PhotoSwipeGallery>
+        {!formSubmitted &&
+          <EurekaForm
+            id="my-form"
+            className="my-custom-class"
+            questions={questions}
+            autoFocus={true}
+            onSubmit={el => {
+              this.setState({
+                ...this.state,
+                formSubmitted: true
+              });
+            }}
+          />
+        }
+
+        {formSubmitted &&
+          <div>
+            Thank you for your response!
+          </div>
+        }
       </div>
-    )
+    );
   }
 }
 
-export default SwipePhotoTest
+export default EurekaDemo;
 ```
 
-## Future Goals:
-- Automatic image resizing and responsiveness
-- Autoplay
-- SEO (Schemas) -->
+## Props
+| name           | type     | example                                                    |
+| -------------- | -------- | ---------------------------------------------------------- |
+| id             | string   | "my-custom-id" |
+| className      | string   | "my-custom-class my-2nd-class"                             |
+| questions      | array    | `[{ title: "What's your email?", inputType: "email" }, { title: "Where do you live?", }]`                                           |
+| autoFocus      | boolean  | true                                                  |
+| onSubmit       | function | `(element, values) => console.log(values);`    |
+
+## Credits
+The implementation of the component is based on the work of 
+[Mary Lou from Tympanus](https://tympanus.net/Development/MinimalForm/)
+
+Logo is made by [Patrick Morrison](http://www.patrickmorrison.co.uk/)
