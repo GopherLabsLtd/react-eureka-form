@@ -1,6 +1,6 @@
 {
   "name": "react-eureka",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A React minimalistic wizard form",
   "main": "build/index.js",
   "scripts": {
@@ -14,8 +14,11 @@
   },
   "keywords": [
     "react",
-    "photoswipe",
-    "lightbox"
+    "form",
+    "form-validation",
+    "html5-forms",
+    "typeform",
+    "minimalistic"
   ],
   "author": "Gopher Labs Ltd. - Eliad Moosavi <hello@gopher.it> (https://gopher.it)",
   "license": "MIT",
