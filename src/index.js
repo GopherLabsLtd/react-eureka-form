@@ -302,14 +302,15 @@ class EurekaForm extends React.Component {
                 ...this.state,
                 wasSubmitted: true
             }, () => {
-                const values = [];
+                const values = {};
 
                 // Disable all inputs
                 this.state.questions.forEach(question => {
                     const questionInput = question.querySelector('input, textarea, select');
+                    const key = questionInput.getAttribute("id")
                     questionInput.setAttribute("disabled", true);
 
-                    values.push(questionInput.value);
+                    values[key] = questionInput.value;
                 });
                 
                 // Remove next button
