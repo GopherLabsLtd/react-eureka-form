@@ -333,17 +333,20 @@ class EurekaForm extends React.Component {
         <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
             <div className="simform-inner">
                 <ol className="questions">
-                    {this.props.questions.map((question, i) =>
-                        <li key={`eureka-question-${i}`}>
-                            <span>
-                                <label htmlFor={`eureka-question-${i}`}>
-                                    {question.title}
-                                </label>
-                            </span>
+                    {this.props.questions.map((question, i) => {
+                         const key = question.key || `eureka-question-${i}`
+                         return (
+                             <li key={key}>
+                                 <span>
+                                     <label htmlFor={key}>
+                                         {question.title}
+                                     </label>
+                                 </span>
 
-                            <input id={`eureka-question-${i}`} name={`eureka-question-${i}`} type={question.inputType || "text"} />
-                        </li>
-                    )}
+                                 <input id={key} name={key} type={question.inputType || "text"} />
+                             </li>
+                         )
+                    })}
                 </ol>
                 
                 <button className="submit" type="submit">Send answers</button>
