@@ -339,7 +339,7 @@ class EurekaForm extends React.Component {
         <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
             <div className="simform-inner">
                 <ol className="questions">
-                    {this.props.questions.map((question, i) => {
+                    {this.props.questions && this.props.questions.map((question, i) => {
                          const key = question.key || `eureka-question-${i}`
                          return (
                              <li key={key}>
@@ -350,6 +350,20 @@ class EurekaForm extends React.Component {
                                  </span>
 
                                  <input id={key} name={key} type={question.inputType || "text"} />
+                             </li>
+                         )
+                    })}
+                    {this.props.children && React.Children.map(this.props.children, (child, i) => {
+                         const key = child.props.type || `eureka-question-${i}`
+                         return (
+                             <li key={key}>
+                                 <span>
+                                     <label htmlFor={key}>
+                                         {child}
+                                     </label>
+                                 </span>
+
+                                 <input id={key} name={key} type={child.props.type || "text"} />
                              </li>
                          )
                     })}
@@ -377,6 +391,10 @@ class EurekaForm extends React.Component {
         </form>
       )
     }
+}
+
+EurekaForm.defaultProps = {
+    onUpdate: function () {}
 }
 
 module.exports = { EurekaForm };
