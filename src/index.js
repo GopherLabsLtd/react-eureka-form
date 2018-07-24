@@ -44,6 +44,7 @@ class EurekaForm extends React.Component {
         this.state = {
             current: 0,
             questions: [],
+            values: {},
             wasSubmitted: false
         };
     }
@@ -180,6 +181,7 @@ class EurekaForm extends React.Component {
 		// current question
 		const currentQuestion = this.state.questions[this.state.current];
         currentQuestion.querySelector('input, textarea, select').blur();
+        this._setValue(currentQuestion)
 
         this.setState({
             ...this.state,
@@ -296,28 +298,32 @@ class EurekaForm extends React.Component {
 		this.error.classList.remove('show');
     }
     
+    _setValue(question) {
+        const questionInput = question.querySelector('input, textarea, select');
+        questionInput.setAttribute("disabled", true);
+        const key = questionInput.getAttribute("id")
+        const newState = {
+            ...this.state,
+            values: {
+                ...this.state.values,
+                [key]: questionInput.value
+            }
+        }
+        this.setState(newState)
+        this.props.onUpdate(newState)
+    }
+
     _submit() {
         if (!this.state.wasSubmitted) {
             this.setState({
                 ...this.state,
                 wasSubmitted: true
             }, () => {
-                const values = {};
-
-                // Disable all inputs
-                this.state.questions.forEach(question => {
-                    const questionInput = question.querySelector('input, textarea, select');
-                    const key = questionInput.getAttribute("id")
-                    questionInput.setAttribute("disabled", true);
-
-                    values[key] = questionInput.value;
-                });
-                
                 // Remove next button
                 this.ctrlNext.style.display = "none";
 
                 // Call the custom onSubmit function
-                this.props.onSubmit(this.formRef, values);
+                this.props.onSubmit(this.formRef, this.state.values);
             });
         }
 	}
