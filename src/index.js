@@ -160,7 +160,7 @@ class EurekaForm extends React.Component {
 			if (!input.checkValidity()) {
 				// Optionally, set a custom HTML5 valiation message
 				// comment or remove this line to use the browser default message
-                input.setCustomValidity('Whoops, that\'s not an email address!');
+                //input.setCustomValidity('Whoops, that\'s not an email address!');
                 
 				// display the HTML5 error message
                 this._showError(input.validationMessage);
