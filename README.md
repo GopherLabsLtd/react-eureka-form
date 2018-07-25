@@ -86,7 +86,7 @@ in the React children API you pass the components you want to display as your qu
 
 ## questions API
 
-```js
+```jsx
 const questions = [{
       key: "email", // how you want your answered to be named in the values object
       title: "What's your email?", // the text you want displayed
@@ -95,16 +95,17 @@ const questions = [{
 }, {
       key: "address",
       title: "Where do you live?"
-}]`
+}]
+
 <EurekaForm questions={questions} onSubmit={doStuff}/>
 ```
 
 ## React children API
-
-```js
+*Note:* **The type prop sets both the HTML form type and the key in the values object**
+```jsx
 <EurekaForm onSubmit={doStuff}>
-      <span type='name'> {/* The type is both the HTML form type and the key in the values object */}
-        What's your name {/* The actually text that is displayed *}
+      <span type='name'>
+        What's your name
       </span>
       <span type='email'>
         Hello <b>{values.name}</b>, and your email?
