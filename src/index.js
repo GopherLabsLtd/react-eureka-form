@@ -49,15 +49,30 @@ class EurekaForm extends React.Component {
         };
     }
 
-    componentDidMount() {
+    _updateQuestions(callback = () => {}) {
+        const childQuestions = React.Children.map(this.props.children, (child, i) => ({
+            type: child.props.type || `eureka-question-${i}`
+        }))
         const questions = [].slice.call(this.formRef.querySelectorAll( 'ol.questions > li' ));
+        const values = (this.props.questions || [])
+            .concat(childQuestions)
+            .reduce((acc, cur) => Object.assign({}, acc, {
+                [cur.type]: undefined
+            }), {})
         this.setState({
             ...this.state,
             questions,
-            questionsCount: questions.length,
+            values,
+            // XXX: this actually doesn't catch duplicate keys,
+            // i.e. it actually counts the *awswers* you can get.
+            questionsCount: Object.keys(values).length,
+        }, callback);
+    }
 
-        }, () => {
+    componentDidMount() {
+        this._updateQuestions(() => {
             // show first question
+            this.props.onUpdate(this.state)
             const firstQuestion = this.state.questions[0];
             firstQuestion.classList.add('current');
 
