@@ -71,10 +71,49 @@ export default EurekaDemo;
 | -------------- | -------- | ---------------------------------------------------------- |
 | id             | string   | "my-custom-id" |
 | className      | string   | "my-custom-class my-2nd-class"                             |
-| questions      | array    | `[{ title: "What's your email?", inputType: "email" }, { title: "Where do you live?", }]`                                           |
+| questions      | array    | `[{ key: "email", title: "What's your email?", inputType: "email" }, { key: "address", title: "Where do you live?", }]`                                           |
 | autoFocus      | boolean  | true                                                  |
 | onUpdate       | function | `(state) => this.setState(state);`    |
-| onSubmit       | function | `() => console.log("Make API calls!");`    |
+| onSubmit       | function | `({values}) => console.log("Make API calls!");`    |
+
+## onSubmit()
+will get you back an object with your answers, if you gave keys to your questions (see below how to do that),
+they will be named, if not they will come back as `eureka-question-${i}`
+
+there are 2 APIs you can use (you can actually use both, but we don't recomend it),
+in the questions API you pass your questions as a JSON object.
+in the React children API you pass the components you want to display as your questions.
+
+## questions API
+
+```js
+const questions = [{
+      key: "email", // how you want your answered to be named in the values object
+      title: "What's your email?", // the text you want displayed
+      inputType: "email" // this is pristinely passed as the HTML form type,
+                         // used for validation and error messages
+}, {
+      key: "address",
+      title: "Where do you live?"
+}]`
+<EurekaForm questions={questions} onSubmit={doStuff}/>
+```
+
+## React children API
+
+```js
+<EurekaForm onSubmit={doStuff}>
+      <span type='name'> {/* The type is both the HTML form type and the key in the values object */}
+        What's your name {/* The actually text that is displayed *}
+      </span>
+      <span type='email'>
+        Hello <b>{values.name}</b>, and your email?
+      </span>
+      <span type='tel'>
+        Phone Number?
+      </span>
+</EurekaForm>
+```
 
 ## Credits
 The implementation of the component is based on the work of 
