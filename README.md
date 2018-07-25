@@ -12,7 +12,7 @@ npm install --save react-eureka
 ```
 
 ## How to Use:
-```js
+```jsx
 import React, { Component } from 'react';
 
 import { EurekaForm } from 'react-eureka';
