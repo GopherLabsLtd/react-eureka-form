@@ -86,7 +86,7 @@ in the React children API you pass the components you want to display as your qu
 
 ## questions API
 
-```jsx
+```js
 const questions = [{
       key: "email", // how you want your answered to be named in the values object
       title: "What's your email?", // the text you want displayed
@@ -96,7 +96,9 @@ const questions = [{
       key: "address",
       title: "Where do you live?"
 }]
+```
 
+```jsx
 <EurekaForm questions={questions} onSubmit={doStuff}/>
 ```
 
