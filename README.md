@@ -27,6 +27,8 @@ class EurekaDemo extends Component {
       formSubmitted: false
     };
   }
+  
+  _onSubmit = () => this.setState({...this.state, formSubmitted: true})
 
   render() {
     const { formSubmitted, values } = this.state;
