@@ -1,6 +1,6 @@
 # React Eureka [![npm](https://img.shields.io/npm/v/react-eureka.svg)](https://www.npmjs.com/package/react-eureka) [![npm](https://img.shields.io/npm/dm/react-eureka.svg)](https://www.npmjs.com/package/react-eureka)
 
-<img src="./src/logo.png" style="max-width: 250px">
+<img src="./src/logo.png" style="width: 250px">
 
 A minimalistic form wizard component for React
 
@@ -17,59 +17,42 @@ import React, { Component } from 'react';
 
 import { EurekaForm } from 'react-eureka';
 
-const questions = [
-  {
-    title: "What's your email?",
-    inputType: "email"
-  },
-  {
-    title: "Where do you live?",
-  },
-  {
-    title: "What time do you go to work?",
-  },
-  {
-    title: "How do you like your veggies?",
-  },
-  {
-    title: "What book inspires you?",
-  },
-  {
-    title: "What's your profession?",
-  },
-];
-
 class EurekaDemo extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      current: -1,
+      values: {},
       formSubmitted: false
     };
   }
 
   render() {
-    const { formSubmitted } = this.state;
+    const { formSubmitted, values } = this.state;
 
     return (
       <div>
         {!formSubmitted &&
-          <EurekaForm
-            id="my-form"
-            className="my-custom-class"
-            questions={questions}
-            autoFocus={true}
-            onSubmit={el => {
-              this.setState({
-                ...this.state,
-                formSubmitted: true
-              });
-            }}
-          />
+          <EurekaForm autoFocus
+            onSubmit={this._onSubmit}
+            onUpdate={(state) => this.setState(state)}>
+            <span type='name'>
+              What's your name
+            </span>
+
+            <span type='email'>
+              Hello <b>{values.name}</b>, and your email?
+            </span>
+
+            <span type='tel'>
+              Phone Number?
+            </span>
+          </EurekaForm>
         }
 
         {formSubmitted &&
-          <div>
+          <div className="submit-message">
             Thank you for your response!
           </div>
         }
@@ -88,7 +71,8 @@ export default EurekaDemo;
 | className      | string   | "my-custom-class my-2nd-class"                             |
 | questions      | array    | `[{ title: "What's your email?", inputType: "email" }, { title: "Where do you live?", }]`                                           |
 | autoFocus      | boolean  | true                                                  |
-| onSubmit       | function | `(element, values) => console.log(values);`    |
+| onUpdate       | function | `(state) => this.setState(state);`    |
+| onSubmit       | function | `() => console.log("Make API calls!");`    |
 
 ## Credits
 The implementation of the component is based on the work of 
