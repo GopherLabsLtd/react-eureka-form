@@ -44,6 +44,7 @@ class EurekaForm extends React.Component {
         this.state = {
             current: 0,
             questions: [],
+            values: {},
             wasSubmitted: false
         };
     }
@@ -159,7 +160,7 @@ class EurekaForm extends React.Component {
 			if (!input.checkValidity()) {
 				// Optionally, set a custom HTML5 valiation message
 				// comment or remove this line to use the browser default message
-                input.setCustomValidity('Whoops, that\'s not an email address!');
+                //input.setCustomValidity('Whoops, that\'s not an email address!');
                 
 				// display the HTML5 error message
                 this._showError(input.validationMessage);
@@ -180,6 +181,7 @@ class EurekaForm extends React.Component {
 		// current question
 		const currentQuestion = this.state.questions[this.state.current];
         currentQuestion.querySelector('input, textarea, select').blur();
+        this._setValue(currentQuestion)
 
         this.setState({
             ...this.state,
@@ -296,27 +298,32 @@ class EurekaForm extends React.Component {
 		this.error.classList.remove('show');
     }
     
+    _setValue(question) {
+        const questionInput = question.querySelector('input, textarea, select');
+        questionInput.setAttribute("disabled", true);
+        const key = questionInput.getAttribute("id")
+        const newState = {
+            ...this.state,
+            values: {
+                ...this.state.values,
+                [key]: questionInput.value
+            }
+        }
+        this.setState(newState)
+        this.props.onUpdate(newState)
+    }
+
     _submit() {
         if (!this.state.wasSubmitted) {
             this.setState({
                 ...this.state,
                 wasSubmitted: true
             }, () => {
-                const values = [];
-
-                // Disable all inputs
-                this.state.questions.forEach(question => {
-                    const questionInput = question.querySelector('input, textarea, select');
-                    questionInput.setAttribute("disabled", true);
-
-                    values.push(questionInput.value);
-                });
-                
                 // Remove next button
                 this.ctrlNext.style.display = "none";
 
                 // Call the custom onSubmit function
-                this.props.onSubmit(this.formRef, values);
+                this.props.onSubmit(this.formRef, this.state.values);
             });
         }
 	}
@@ -332,17 +339,34 @@ class EurekaForm extends React.Component {
         <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
             <div className="simform-inner">
                 <ol className="questions">
-                    {this.props.questions.map((question, i) =>
-                        <li key={`eureka-question-${i}`}>
-                            <span>
-                                <label htmlFor={`eureka-question-${i}`}>
-                                    {question.title}
-                                </label>
-                            </span>
+                    {this.props.questions && this.props.questions.map((question, i) => {
+                         const key = question.key || `eureka-question-${i}`
+                         return (
+                             <li key={key}>
+                                 <span>
+                                     <label htmlFor={key}>
+                                         {question.title}
+                                     </label>
+                                 </span>
 
-                            <input id={`eureka-question-${i}`} name={`eureka-question-${i}`} type={question.inputType || "text"} />
-                        </li>
-                    )}
+                                 <input id={key} name={key} type={question.inputType || "text"} />
+                             </li>
+                         )
+                    })}
+                    {this.props.children && React.Children.map(this.props.children, (child, i) => {
+                         const key = child.props.type || `eureka-question-${i}`
+                         return (
+                             <li key={key}>
+                                 <span>
+                                     <label htmlFor={key}>
+                                         {child}
+                                     </label>
+                                 </span>
+
+                                 <input id={key} name={key} type={child.props.type || "text"} />
+                             </li>
+                         )
+                    })}
                 </ol>
                 
                 <button className="submit" type="submit">Send answers</button>
@@ -367,6 +391,10 @@ class EurekaForm extends React.Component {
         </form>
       )
     }
+}
+
+EurekaForm.defaultProps = {
+    onUpdate: function () {}
 }
 
 module.exports = { EurekaForm };
