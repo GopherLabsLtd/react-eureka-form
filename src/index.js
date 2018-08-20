@@ -37,7 +37,7 @@ const randomID = () => {
     return id;
 };
 
-class EurekaForm extends React.Component {
+class EurekaForm extends React.PureComponent {
     constructor(props) {
         super(props);
 
@@ -133,70 +133,52 @@ class EurekaForm extends React.Component {
             this.ctrlNext.classList.add('show');
         };
 
-		// show the next question control first time the input gets focused
+	// show the next question control first time the input gets focused
         firstElInput.addEventListener('focus', onFocusStartFn);
         
         if (this.props.autoFocus) {
             firstElInput.focus();
         }
 
-		// show next question
-		this.ctrlNext.addEventListener('click', ev => {
+	// show next question
+	this.ctrlNext.addEventListener('click', ev => {
             ev.preventDefault();
 
-			this._nextQuestion();
-		});
+	    this._nextQuestion();
+	});
 
-		// pressing enter will jump to next question
-		this.formRef.addEventListener('keydown', ev => {
+	// pressing enter will jump to next question
+	this.formRef.addEventListener('keydown', ev => {
             const keyCode = ev.keyCode || ev.which;
             
-			// enter
-			if(keyCode === 13) {
+	    // enter
+	    if(keyCode === 13) {
                 ev.preventDefault();
                 
                 this._nextQuestion();
-			}
-		});
+	    }
+	});
     }
 
-    _nextQuestion() {
-		if(!this._validate()) {
-			return false;
-        }
 
-		// checks HTML5 validation
-		if (this.supportsHTML5Forms) {
-			const input = this.state.questions[this.state.current].querySelector('input, textarea, select');
-			// clear any previous error messages
-			input.setCustomValidity('');
+	if (this.supportsHTML5Forms) {
+	    const input = this.state.questions[this.state.current].querySelector('input, textarea, select');
+	    // clear any previous error messages
+	    input.setCustomValidity('');
 
-			// checks input against the validation constraint
-			if (!input.checkValidity()) {
-				// Optionally, set a custom HTML5 valiation message
-				// comment or remove this line to use the browser default message
+	    // checks input against the validation constraint
+	    if (!input.checkValidity()) {
+		// Optionally, set a custom HTML5 valiation message
+		// comment or remove this line to use the browser default message
                 //input.setCustomValidity('Whoops, that\'s not an email address!');
-                
-				// display the HTML5 error message
+
+		// display the HTML5 error message
                 this._showError(input.validationMessage);
-                
-				// prevent the question from changing
-				return false;
-			}
-		}
 
-		// check if form is filled
-		if (this.state.current === this.state.questionsCount - 1) {
-			this.isFilled = true;
-		}
-
-        // clear any previous error messages
-		this._clearError();
-
-		// current question
-		const currentQuestion = this.state.questions[this.state.current];
-        currentQuestion.querySelector('input, textarea, select').blur();
-        this._setValue(currentQuestion)
+		// prevent the question from changing
+		return false;
+	    }
+	}
 
         this.setState({
             ...this.state,
@@ -253,14 +235,26 @@ class EurekaForm extends React.Component {
                 onEndTransitionFn();
             }
         });
+    _nextQuestion() {
+	if(!this._validate()) {
+	    return false;
+        }
+
+	// checks HTML5 validation
+	// check if form is filled
+	if (this.state.current === this.state.questionsCount - 1) {
+	    this.isFilled = true;
 	}
 
+        // clear any previous error messages
+	this._clearError();
+
     // updates the progress bar by setting its width
-	_progress() {
-		const currentProgress = this.state.current * ( 100 / this.state.questionsCount );
+    _progress() {
+	const currentProgress = this.state.current * ( 100 / this.state.questionsCount );
         this.progress.style.width = currentProgress + '%';
-        
-		// update the progressbar's aria-valuenow attribute
+
+	// update the progressbar's aria-valuenow attribute
         this.progress.setAttribute('aria-valuenow', currentProgress);
     }
     
@@ -269,48 +263,48 @@ class EurekaForm extends React.Component {
             return false;
         }
 
-		// current question´s input
-		const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
-		if (input === '') {
+	// current question´s input
+	const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
+	if (input === '') {
             this._showError('EMPTYSTR');
-            
-			return false;
-		}
 
-		return true;
+	    return false;
+	}
+
+	return true;
     }
 
     _updateQuestionNumber() {
-		// first, create next question number placeholder
-		this.nextQuestionNum = document.createElement('span');
-		this.nextQuestionNum.className = 'number-next';
+	// first, create next question number placeholder
+	this.nextQuestionNum = document.createElement('span');
+	this.nextQuestionNum.className = 'number-next';
         this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
         
-		// insert it in the DOM
-		this.questionStatus.appendChild(this.nextQuestionNum);
-	}
+	// insert it in the DOM
+	this.questionStatus.appendChild(this.nextQuestionNum);
+    }
     
     _showError(err) {
-		let message = '';
-		switch(err) {
-			case 'EMPTYSTR':
-				message = 'Please fill the field before continuing';
-				break;
-			case 'INVALIDEMAIL':
-				message = 'Please fill a valid email address';
-				break;
-			// ...
-			default:
-				message = err;
+	let message = '';
+	switch(err) {
+	    case 'EMPTYSTR':
+		message = 'Please fill the field before continuing';
+		break;
+	    case 'INVALIDEMAIL':
+		message = 'Please fill a valid email address';
+		break;
+		// ...
+		    default:
+		message = err;
         };
         
         this.error.innerHTML = message;
         
-		this.error.classList.add('show');
+	this.error.classList.add('show');
     }
     
     _clearError() {
-		this.error.classList.remove('show');
+	this.error.classList.remove('show');
     }
     
     _setValue(question) {
@@ -341,11 +335,11 @@ class EurekaForm extends React.Component {
                 this.props.onSubmit(this.formRef, this.state.values);
             });
         }
-	}
+    }
 
     render() {
       let customClass = "";
-      
+
       if (this.props.className) {
         customClass = this.props.className + " ";
       }
