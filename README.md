@@ -131,32 +131,21 @@ still works. You should also make sure to gracefully handle the `children`
 prop, as it'll be usual to pass down the question component there.
 
 ```jsx
-class InputQuestion extends React.PureComponent {
-    render () {
-        const { onChange, type, children } = this.props
-        return (
-            <div>
-                <span>{children}</span>
-                <input onChange={onChange} type={type}/>
-            </div>
-        )
-    }
-}
+const InputQuestion = ({ onChange, type, children }) => (
+    <div>
+        <span>{children}</span>
+            <input onChange={onChange} type={type}/>
+    </div>
+)
 
-
-class ListQuestion extends React.PureComponent {
-    render () {
-        const { options, onChange, children } = this.props
-        return (
-            <ul>
-                <h1>{children}</h1>
-                { options.map(opt, i => (
-                    <li key={i} onClick={() => onChange(opt)}>{opt}</li>
-                )}
-            </ul>
-        )
-    }
-}
+const ListQuestion = ({ options, onChange, children }) => (
+    <ul>
+        <h1>{children}</h1>
+            { options.map(opt, i => (
+                <li key={i} onClick={() => onChange(opt)}>{opt}</li>
+            )}
+    </ul>
+)
 
 const MyForm = ({values = {}}) => (
     <EurekaForm onSubmit={doStuff}>
