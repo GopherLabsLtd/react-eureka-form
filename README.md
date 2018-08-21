@@ -15,7 +15,7 @@ npm install --save react-eureka
 ```jsx
 import React, { Component } from 'react';
 
-import { EurekaForm } from 'react-eureka';
+import { EurekaForm, Question } from 'react-eureka';
 
 class EurekaDemo extends Component {
   constructor(props) {
@@ -27,7 +27,7 @@ class EurekaDemo extends Component {
       formSubmitted: false
     };
   }
-  
+
   _onSubmit = () => this.setState({...this.state, formSubmitted: true})
 
   render() {
@@ -43,13 +43,13 @@ class EurekaDemo extends Component {
               What's your name
             </span>
 
-            <span type='email'>
+            <Question type='email'>
               Hello <b>{values.name}</b>, and your email?
-            </span>
+            </Question>
 
-            <span type='tel'>
+            <Question type='tel'>
               Phone Number?
-            </span>
+            </Question>
           </EurekaForm>
         }
 
@@ -84,7 +84,7 @@ there are 2 APIs you can use (you can actually use both, but we don't recomend i
 in the questions API you pass your questions as a JSON object.
 in the React children API you pass the components you want to display as your questions.
 
-## questions API
+## questions array API
 
 ```js
 const questions = [{
@@ -102,22 +102,74 @@ const questions = [{
 <EurekaForm questions={questions} onSubmit={doStuff}/>
 ```
 
-## React children API
-*Note:* **The type prop sets both the HTML form type and the key in the values object**
+## React Component API
+*Note:* **The type prop sets both the HTML form type and the key in the
+values object**
+each child you give to EurekaForm will be treated as a `question`, the
+easiest way is to use the `Question` helper we provide.
+
+### Question Helper
 ```jsx
 <EurekaForm onSubmit={doStuff}>
-      <span type='name'>
+      <Question type='name'>
         What's your name
-      </span>
-      <span type='email'>
+      </Question>
+      <Question type='email'>
         Hello <b>{values.name}</b>, and your email?
-      </span>
-      <span type='tel'>
+      </Question>
+      <Question type='tel'>
         Phone Number?
-      </span>
+      </Question>
 </EurekaForm>
 ```
 
+### Full API
+In order to implement your own Question Helper you just need to call
+`onChange` when your value changes, if you are going to use an `<input/>`
+tag, please pass down the `type` property to make sure HTML5 validation
+still works. You should also make sure to gracefully handle the `children`
+prop, as it'll be usual to pass down the question component there.
+
+```jsx
+class InputQuestion extends React.PureComponent {
+    render () {
+        const { onChange, type, children } = this.props
+        return (
+            <div>
+                <span>{children}</span>
+                <input onChange={onChange} type={type}/>
+            </div>
+        )
+    }
+}
+
+
+class ListQuestion extends React.PureComponent {
+    render () {
+        const { options, onChange, children } = this.props
+        return (
+            <ul>
+                <h1>{children}</h1>
+                { options.map(opt, i => (
+                    <li key={i} onClick={() => onChange(opt)}>{opt}</li>
+                )}
+            </ul>
+        )
+    }
+}
+
+const MyForm = ({values = {}}) => (
+    <EurekaForm onSubmit={doStuff}>
+        <InputQuestion type='name'>
+          What's your name ?
+        </Question>
+        <ListQuestion type='country' options={['Argentina', 'Brazil', 'Canada']}>
+          Hello <b>{values.name}</b>, and your country ?
+        </Question>
+    </EurekaForm>
+)
+```
+    
 ## Credits
 The implementation of the component is based on the work of 
 [Mary Lou from Tympanus](https://tympanus.net/Development/MinimalForm/)
