@@ -151,10 +151,10 @@ const MyForm = ({values = {}}) => (
     <EurekaForm onSubmit={doStuff}>
         <InputQuestion type='name'>
           What's your name ?
-        </Question>
+        </InputQuestion>
         <ListQuestion type='country' options={['Argentina', 'Brazil', 'Canada']}>
           Hello <b>{values.name}</b>, and your country ?
-        </Question>
+        </ListQuestion>
     </EurekaForm>
 )
 ```
