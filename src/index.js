@@ -204,7 +204,6 @@ class EurekaForm extends React.PureComponent {
 	// pressing enter will jump to next question
 	this.formRef.addEventListener('keydown', ev => {
             const keyCode = ev.keyCode || ev.which;
-            console.error('keydown', keyCode, ev)
 
 	    // enter
 	    if(keyCode === 13) {
@@ -258,7 +257,6 @@ class EurekaForm extends React.PureComponent {
             console.error("Warning, component", component, "doesn't support validation, implement your validate() method")
         } else {
             const validationResult = component.validate()
-            console.error("validate", validationResult)
             if (validationResult !== true) {
                 return this._showError(validationResult);
             }
@@ -325,7 +323,6 @@ class EurekaForm extends React.PureComponent {
                 }
             }
             this.setState(newState)
-            console.error('this', this.state)
         }
     }
 
