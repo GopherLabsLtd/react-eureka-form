@@ -4,6 +4,22 @@ import './style.css';
 
 import ICONS_ARROW from 'react-icons/lib/md/arrow-forward';
 
+const Digit = ({children, ...props}) => (
+    <li {...props}>
+        <label>
+            {children}
+        </label>
+    </li>
+)
+
+const Number = ({value}) => (
+    <ul className='questions show-next rollingNumber'>
+        <Digit className='next' key={value + 1}>{value + 1}</Digit>
+        <Digit className='current' key={value}>{value}</Digit>
+        <Digit className='prev' key={value - 1}>{value - 1}</Digit>
+    </ul>
+)
+
 const checkTransitionsSupport = () => {
     const b = document.body || document.documentElement;
     const s = b.style;
@@ -340,10 +356,23 @@ class EurekaForm extends React.PureComponent {
                     <ol className="questions">
                         {questions && React.Children.map(questions, (child, i) => {
                              const key = child.props.type || `eureka-question-${i}`
-                             return React.cloneElement(child, {
-                                 onChange: this._change(key).bind(this),
-                                 key
-                             })
+                             const className = i === current
+                                             ? 'question current'
+                                             : i === current - 1
+                                             ? 'question prev'
+                                             : i === current + 1
+                                             ? 'question next'
+                                             : 'question'
+                             return <li key={key} className={className}>
+                                 {
+                                     React.cloneElement(child, {
+                                         onChange: this._change(key).bind(this),
+                                         focus: i === current ? true : false,
+                                         ref: (e) => this.questionRefs[i] = e,
+                                         key
+                                     })
+                                 }
+                             </li>
                         })}
                     </ol>
 
@@ -373,4 +402,4 @@ EurekaForm.defaultProps = {
     onUpdate: function () {}
 }
 
-module.exports = { EurekaForm, Question };
+module.exports = { EurekaForm, Question, Number };

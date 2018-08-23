@@ -6,6 +6,16 @@
 
 .simform .submit {
 	display: none;
+.rollingNumber {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+
+.rollingNumber li {
+    display: block;
+    bottom: 0;
+    right: -4px;
 }
 
 /* Question list style */
@@ -29,12 +39,10 @@
 }
 
 .questions li {
-	z-index: 100;
-	position: relative;
-	visibility: hidden;
-	height: 0;
-	-webkit-transition: visibility 0s 0.4s, height 0s 0.4s;
-	transition: visibility 0s 0.4s, height 0s 0.4s;
+    z-index: 100;
+    position: relative;
+    height: 0;
+    visibility: hidden;
 }
 
 .questions li.current,
@@ -52,35 +60,63 @@
     margin-bottom: 0.8em;
 }
 
-.questions li > span label {
-	display: block;
-	-webkit-transition: -webkit-transform 0.4s;
-	transition: transform 0.4s;
-	-webkit-transform: translateY(-100%);
-	transform: translateY(-100%);
+.questions li label {
+    display: block;
+    visibility: visible;
+    opacity: 0;
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
 }
 
-.questions li.current > span label,
-.no-js .questions li > span label {
-	-webkit-transition: none;
-	transition: none;
-	-webkit-transform: translateY(0);
-	transform: translateY(0);
+.questions li.current label,
+.no-js .questions li label {
+    opacity: 1;
+    -webkit-transition: none;
+    transition: none;
+    -webkit-transform: translateY(-100%);
+    transform: translateY(-100%);
 }
 
-.show-next .questions li.current > span label {
-	-webkit-animation: moveUpFromDown 0.4s both;
-	animation: moveUpFromDown 0.4s both;
+.questions li.prev label {
+    background: green;
+    -webkit-animation: moveUpFromCenter 4s both;
+    animation: moveUpFromCenter 4s both;
+}
+
+.questions li.current label {
+    background: red;
+    -webkit-animation: moveUpFromDown 4s both;
+    animation: moveUpFromDown 4s both;
+}
+
+.questions li.next label {
+    background: blue;
+}
+
+.questions li.current:first-child label {
+    -webkit-animation: none;
+    animation: none;
+    transform: translateY(0);
 }
 
 @-webkit-keyframes moveUpFromDown {
-	from { -webkit-transform: translateY(100%); }
-	to { -webkit-transform: translateY(0); }
+    from { -webkit-transform: translateY(100%); opacity: 0; }
+    to { -webkit-transform: translateY(0); opacity: 1; }
 }
 
 @keyframes moveUpFromDown {
-	from { -webkit-transform: translateY(100%); transform: translateY(100%); }
-	to { -webkit-transform: translateY(0); transform: translateY(0); }
+    from { -webkit-transform: translateY(100%); transform: translateY(100%); opacity: 0; }
+    to { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; }
+}
+
+@-webkit-keyframes moveUpFromCenter {
+    from { -webkit-transform: translateY(0); opacity: 1; }
+    to { -webkit-transform: translateY(-100%); opacity: 0; }
+}
+
+@keyframes moveUpFromCenter {
+    from { -webkit-transform: translateY(0); transform: translateY(0); opacity: 1; }
+    to { -webkit-transform: translateY(-100%); transform: translateY(-100%); opacity: 0; }
 }
 
 /* Input field */
