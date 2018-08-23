@@ -38,24 +38,71 @@ const randomID = () => {
 };
 
 class Question extends React.PureComponent {
+    constructor(props) {
+        super(props)
+
+        this.inputRef = null
+    }
+
+    _validateHTML5(input) {
+	if (input.setCustomValidity && input.checkValidity) {
+	    // clear any previous error messages
+	    input.setCustomValidity('');
+
+	    // checks input against the validation constraint
+	    if (!input.checkValidity()) {
+		// Optionally, set a custom HTML5 valiation message
+		// comment or remove this line to use the browser default message
+                //input.setCustomValidity('Whoops, that\'s not an email address!');
+
+		// prevent the question from changing
+		return input.validationMessage;
+	    }
+	}
+        return true
+    }
+
+    validate() {
+        // XXX(xaiki): here the correct way would be to use ReactDOM to find
+        // `this` so we don't have to pass the node around, but that would
+        // introduce a new dependency, so we have this weird API where we let
+        // the user shoot his foot by providing us the (wrong?) ref
+        return this._validateHTML5(this.inputRef)
+    }
+
+    focus() {
+        this.inputRef && this.inputRef.focus()
+    }
+
     render () {
         const {
             children = [],
-            onChange = function () {console.error('warning you didnt ass an onChange handler')},
             type = "text",
-            key
+            key,
+            focus,
         } = this.props
 
+        let { onChange } = this.props
+
+        if (! onChange) {
+            console.error('warning you didnt pass an `onChange` handler')
+            onChange = function () {}
+        }
+
         return (
-            <li key={key}>
+            <React.Fragment>
                 <span>
                     <label htmlFor={key}>
                         {children}
                     </label>
                 </span>
 
-                <input id={key} name={key} onChange={onChange} type={type} />
-            </li>
+                <input ref={(e) => this.inputRef = e}
+                       id={key} name={key}
+                       onChange={onChange}
+                       type={type}
+                       disabled={!focus}/>
+            </React.Fragment>
         )
     }
 }
@@ -141,39 +188,18 @@ class EurekaForm extends React.PureComponent {
 	// pressing enter will jump to next question
 	this.formRef.addEventListener('keydown', ev => {
             const keyCode = ev.keyCode || ev.which;
-            
+            console.error('keydown', keyCode, ev)
+
 	    // enter
 	    if(keyCode === 13) {
                 ev.preventDefault();
-                
+
                 this._nextQuestion();
 	    }
 	});
     }
 
-    _validateHTML5() {
-	if (this.supportsHTML5Forms) {
-	    const input = this.state.questions[this.state.current].querySelector('input, textarea, select');
-	    // clear any previous error messages
-	    input.setCustomValidity('');
-
-	    // checks input against the validation constraint
-	    if (!input.checkValidity()) {
-		// Optionally, set a custom HTML5 valiation message
-		// comment or remove this line to use the browser default message
-                //input.setCustomValidity('Whoops, that\'s not an email address!');
-
-		// display the HTML5 error message
-                this._showError(input.validationMessage);
-
-		// prevent the question from changing
-		return false;
-	    }
-	}
-        return true
-    }
-
-    _nextQuestionFinish(currentQuestion) {
+    _nextQuestionFinish() {
         {
             // update progress bar
             this._progress();
@@ -211,13 +237,15 @@ class EurekaForm extends React.PureComponent {
     }
 
     _nextQuestion() {
-	if(!this._validate()) {
-	    return false;
-        }
-
-	// checks HTML5 validation
-        if (! this._validateHTML5()) {
-            return false
+        const component = this.questionRefs[this.state.current]
+        if (! component.validate) {
+            console.error("Warning, component", component, "doesn't support validation, implement your validate() method")
+        } else {
+            const validationResult = component.validate()
+            console.error("validate", validationResult)
+            if (validationResult !== true) {
+                return this._showError(validationResult);
+            }
         }
 
 	// check if form is filled
@@ -242,22 +270,6 @@ class EurekaForm extends React.PureComponent {
 
 	// update the progressbar's aria-valuenow attribute
         this.progress.setAttribute('aria-valuenow', currentProgress);
-    }
-
-    _validate() {
-        if (!this.state.questions[this.state.current]) {
-            return false;
-        }
-
-	// current question´s input
-	const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
-	if (input === '') {
-            this._showError('EMPTYSTR');
-
-	    return false;
-	}
-
-	return true;
     }
 
     _showError(err) {
