@@ -63,10 +63,17 @@ class Question extends React.PureComponent {
 class EurekaForm extends React.PureComponent {
     constructor(props) {
         super(props);
+        const { questions = [], children } = props
+        const stateQuestions = questions.map((question, i) => (
+            <Question type={question.inputType}>
+                {question.title}
+            </Question>
+        )).concat(children)
 
+        this.questionRefs = {}
         this.state = {
+            questions: stateQuestions,
             current: 0,
-            questions: [],
             values: {},
             wasSubmitted: false
         };
@@ -76,7 +83,6 @@ class EurekaForm extends React.PureComponent {
         const childQuestions = React.Children.map(this.props.children, (child, i) => ({
             type: child.props.type || `eureka-question-${i}`
         }))
-        const questions = [].slice.call(this.formRef.querySelectorAll( 'ol.questions > li' ));
         const values = (this.props.questions || [])
             .concat(childQuestions)
             .reduce((acc, cur) => Object.assign({}, acc, {
@@ -84,11 +90,8 @@ class EurekaForm extends React.PureComponent {
             }), {})
         this.setState({
             ...this.state,
-            questions,
             values,
-            // XXX: this actually doesn't catch duplicate keys,
-            // i.e. it actually counts the *awswers* you can get.
-            questionsCount: Object.keys(values).length,
+            questionsCount: this.state.questions.length
         }, callback);
     }
 
@@ -96,8 +99,6 @@ class EurekaForm extends React.PureComponent {
         this._updateQuestions(() => {
             // show first question
             this.props.onUpdate(this.state)
-            const firstQuestion = this.state.questions[0];
-            firstQuestion.classList.add('current');
 
             // next question control
             this.ctrlNext = this.formRef.querySelector('button.next');
@@ -115,26 +116,9 @@ class EurekaForm extends React.PureComponent {
 
             // // question number status
             this.questionStatus = this.formRef.querySelector('span.number');
-            
+
             // // give the questions status an id
             this.questionStatus.id = this.questionStatus.id || randomID();
-            
-            // associate "x / y" with the input via aria-describedby
-            for (var i = this.state.questions.length - 1; i >= 0; i--) {
-                const formElement = this.state.questions[i].querySelector('input, textarea, select');
-                formElement.setAttribute('aria-describedby', this.questionStatus.id);
-            };
-            
-            // // current question placeholder
-            this.currentNum = this.questionStatus.querySelector('span.number-current');
-            this.currentNum.innerHTML = Number(this.state.current + 1);
-            
-            // // total questions placeholder
-            this.totalQuestionNum = this.questionStatus.querySelector('span.number-total');
-            this.totalQuestionNum.innerHTML = this.state.questionsCount;
-
-            // // error message
-            this.error = this.formRef.querySelector('span.error-message');
 
             // checks for HTML5 Form Validation support
             // a cleaner solution might be to add form validation to the custom Modernizr script
@@ -142,27 +126,11 @@ class EurekaForm extends React.PureComponent {
 
             // init events
             this._initEvents();
+            this.questionRefs[this.state.current].focus()
         });
     }
 
     _initEvents() {
-        // first input
-        const firstElInput = this.state.questions[this.state.current].querySelector('input, textarea, select');
-        
-        // focus
-        const onFocusStartFn = () => {
-            firstElInput.removeEventListener('focus', onFocusStartFn);
-
-            this.ctrlNext.classList.add('show');
-        };
-
-	// show the next question control first time the input gets focused
-        firstElInput.addEventListener('focus', onFocusStartFn);
-        
-        if (this.props.autoFocus) {
-            firstElInput.focus();
-        }
-
 	// show next question
 	this.ctrlNext.addEventListener('click', ev => {
             ev.preventDefault();
@@ -211,20 +179,9 @@ class EurekaForm extends React.PureComponent {
             this._progress();
             this.props.onUpdate(this.state)
 
-            let nextQuestion;
-
             if(!this.isFilled) {
-                // change the current question number/status
-                this._updateQuestionNumber();
-
                 // add class "show-next" to form element (start animations)
                 this.formRef.classList.add('show-next');
-
-                // remove class "current" from current question and add it to the next one
-                // current question
-                nextQuestion = this.state.questions[this.state.current];
-                currentQuestion.classList.remove('current');
-                nextQuestion.classList.add('current');
             }
 
             // after animation ends, remove class "show-next" from form element and change current question placeholder
@@ -236,17 +193,10 @@ class EurekaForm extends React.PureComponent {
 
                 if(self.isFilled) {
                     this._submit();
-                }
-
-                else {
+                } else {
                     this.formRef.classList.remove('show-next');
-
-                    this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
-                    this.questionStatus.removeChild(this.nextQuestionNum);
-
-                    // force the focus on the next input
-                    nextQuestion.querySelector('input, textarea, select').focus();
                 }
+                this.questionRefs[this.state.current].focus()
             };
 
             // onEndTransitionFn();
@@ -278,17 +228,11 @@ class EurekaForm extends React.PureComponent {
         // clear any previous error messages
 	this._clearError();
 
-	// current question
-	const currentQuestion = this.state.questions[this.state.current];
-        const currentInput = currentQuestion.querySelector('input, textarea, select')
-        currentInput.blur()
-        currentInput.setAttribute("disabled", true);
-
         this.setState(state => ({
             ...state,
             // increment current question iterator
 	    current: ++state.current
-        }), () => this._nextQuestionFinish(currentQuestion));
+        }), () => this._nextQuestionFinish());
     }
 
     // updates the progress bar by setting its width
@@ -316,16 +260,6 @@ class EurekaForm extends React.PureComponent {
 	return true;
     }
 
-    _updateQuestionNumber() {
-	// first, create next question number placeholder
-	this.nextQuestionNum = document.createElement('span');
-	this.nextQuestionNum.className = 'number-next';
-        this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
-        
-	// insert it in the DOM
-	this.questionStatus.appendChild(this.nextQuestionNum);
-    }
-    
     _showError(err) {
 	let message = '';
 	switch(err) {
@@ -339,26 +273,27 @@ class EurekaForm extends React.PureComponent {
 		    default:
 		message = err;
         };
-        
-        this.error.innerHTML = message;
-        
-	this.error.classList.add('show');
+
+        this.setState({
+            error: message
+        })
     }
 
     _clearError() {
-	this.error.classList.remove('show');
+        this.setState({
+            error: null
+        })
     }
 
     _change(key) {
-        return function (e) {
+        return function (value) {
             const { questions, current } = this.state
 
-            const questionInput = questions[current].querySelector('input, textarea, select');
             const newState = {
                 ...this.state,
                 values: {
                     ...this.state.values,
-                    [key]: questionInput.value
+                    [key]: value
                 }
             }
             this.setState(newState)
@@ -382,20 +317,16 @@ class EurekaForm extends React.PureComponent {
     }
 
     render() {
-        const { className = "", children = [], questions } = this.props
+        const { current, error, questions, questionsCount } = this.state
+        const { className = "" } = this.props
         let customClass = className + " ";
 
-        questions && children.concat(questions.map((question, i) => (
-            <Question type={question.inputType}>
-                {question.title}
-            </Question>
-        )))
 
         return (
             <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
                 <div className="simform-inner">
                     <ol className="questions">
-                        {children && React.Children.map(children, (child, i) => {
+                        {questions && React.Children.map(questions, (child, i) => {
                              const key = child.props.type || `eureka-question-${i}`
                              return React.cloneElement(child, {
                                  onChange: this._change(key).bind(this),
@@ -414,15 +345,13 @@ class EurekaForm extends React.PureComponent {
                         <div className="progress"></div>
 
                         <span className="number">
-                            <span className="number-current"></span>
-                            <span className="number-total"></span>
+                            <Number value={current + 1}/>
+                            <span className="number-total">{questionsCount}</span>
                         </span>
 
-                        <span className="error-message"></span>
+                        {error && <span className="error-message">{error}</span>}
                     </div>
                 </div>
-
-                <span className="final-message"></span>
             </form>
         )
     }
