@@ -4,6 +4,22 @@ import './style.css';
 
 import ICONS_ARROW from 'react-icons/lib/md/arrow-forward';
 
+const Digit = ({children, ...props}) => (
+    <li {...props}>
+        <label>
+            {children}
+        </label>
+    </li>
+)
+
+const Number = ({value}) => (
+    <ul className='questions show-next rollingNumber'>
+        <Digit className='next' key={value + 1}>{value + 1}</Digit>
+        <Digit className='current' key={value}>{value}</Digit>
+        <Digit className='prev' key={value - 1}>{value - 1}</Digit>
+    </ul>
+)
+
 const checkTransitionsSupport = () => {
     const b = document.body || document.documentElement;
     const s = b.style;
@@ -37,13 +53,90 @@ const randomID = () => {
     return id;
 };
 
-class EurekaForm extends React.Component {
+class Question extends React.PureComponent {
+    constructor(props) {
+        super(props)
+
+        this.inputRef = null
+    }
+
+    _validateHTML5(input) {
+	if (input.setCustomValidity && input.checkValidity) {
+	    // clear any previous error messages
+	    input.setCustomValidity('');
+
+	    // checks input against the validation constraint
+	    if (!input.checkValidity()) {
+		// Optionally, set a custom HTML5 valiation message
+		// comment or remove this line to use the browser default message
+                //input.setCustomValidity('Whoops, that\'s not an email address!');
+
+		// prevent the question from changing
+		return input.validationMessage;
+	    }
+	}
+        return true
+    }
+
+    validate() {
+        // XXX(xaiki): here the correct way would be to use ReactDOM to find
+        // `this` so we don't have to pass the node around, but that would
+        // introduce a new dependency, so we have this weird API where we let
+        // the user shoot his foot by providing us the (wrong?) ref
+        return this._validateHTML5(this.inputRef)
+    }
+
+    focus() {
+        this.inputRef && this.inputRef.focus()
+    }
+
+    render () {
+        const {
+            children = [],
+            type = "text",
+            key,
+            focus,
+        } = this.props
+
+        let { onChange } = this.props
+
+        if (! onChange) {
+            console.error('warning you didnt pass an `onChange` handler')
+            onChange = function () {}
+        }
+
+        return (
+            <React.Fragment>
+                <span>
+                    <label htmlFor={key}>
+                        {children}
+                    </label>
+                </span>
+
+                <input ref={(e) => this.inputRef = e}
+                       id={key} name={key}
+                       onChange={onChange}
+                       type={type}
+                       disabled={!focus}/>
+            </React.Fragment>
+        )
+    }
+}
+
+class EurekaForm extends React.PureComponent {
     constructor(props) {
         super(props);
+        const { questions = [], children } = props
+        const stateQuestions = questions.map((question, i) => (
+            <Question type={question.inputType}>
+                {question.title}
+            </Question>
+        )).concat(children)
 
+        this.questionRefs = {}
         this.state = {
+            questions: stateQuestions,
             current: 0,
-            questions: [],
             values: {},
             wasSubmitted: false
         };
@@ -53,7 +146,6 @@ class EurekaForm extends React.Component {
         const childQuestions = React.Children.map(this.props.children, (child, i) => ({
             type: child.props.type || `eureka-question-${i}`
         }))
-        const questions = [].slice.call(this.formRef.querySelectorAll( 'ol.questions > li' ));
         const values = (this.props.questions || [])
             .concat(childQuestions)
             .reduce((acc, cur) => Object.assign({}, acc, {
@@ -61,11 +153,8 @@ class EurekaForm extends React.Component {
             }), {})
         this.setState({
             ...this.state,
-            questions,
             values,
-            // XXX: this actually doesn't catch duplicate keys,
-            // i.e. it actually counts the *awswers* you can get.
-            questionsCount: Object.keys(values).length,
+            questionsCount: this.state.questions.length
         }, callback);
     }
 
@@ -73,8 +162,6 @@ class EurekaForm extends React.Component {
         this._updateQuestions(() => {
             // show first question
             this.props.onUpdate(this.state)
-            const firstQuestion = this.state.questions[0];
-            firstQuestion.classList.add('current');
 
             // next question control
             this.ctrlNext = this.formRef.querySelector('button.next');
@@ -92,26 +179,9 @@ class EurekaForm extends React.Component {
 
             // // question number status
             this.questionStatus = this.formRef.querySelector('span.number');
-            
+
             // // give the questions status an id
             this.questionStatus.id = this.questionStatus.id || randomID();
-            
-            // associate "x / y" with the input via aria-describedby
-            for (var i = this.state.questions.length - 1; i >= 0; i--) {
-                const formElement = this.state.questions[i].querySelector('input, textarea, select');
-                formElement.setAttribute('aria-describedby', this.questionStatus.id);
-            };
-            
-            // // current question placeholder
-            this.currentNum = this.questionStatus.querySelector('span.number-current');
-            this.currentNum.innerHTML = Number(this.state.current + 1);
-            
-            // // total questions placeholder
-            this.totalQuestionNum = this.questionStatus.querySelector('span.number-total');
-            this.totalQuestionNum.innerHTML = this.state.questionsCount;
-
-            // // error message
-            this.error = this.formRef.querySelector('span.error-message');
 
             // checks for HTML5 Form Validation support
             // a cleaner solution might be to add form validation to the custom Modernizr script
@@ -119,107 +189,40 @@ class EurekaForm extends React.Component {
 
             // init events
             this._initEvents();
+            this.questionRefs[this.state.current].focus()
         });
     }
 
     _initEvents() {
-        // first input
-        const firstElInput = this.state.questions[this.state.current].querySelector('input, textarea, select');
-        
-        // focus
-        const onFocusStartFn = () => {
-            firstElInput.removeEventListener('focus', onFocusStartFn);
-
-            this.ctrlNext.classList.add('show');
-        };
-
-		// show the next question control first time the input gets focused
-        firstElInput.addEventListener('focus', onFocusStartFn);
-        
-        if (this.props.autoFocus) {
-            firstElInput.focus();
-        }
-
-		// show next question
-		this.ctrlNext.addEventListener('click', ev => {
+	// show next question
+	this.ctrlNext.addEventListener('click', ev => {
             ev.preventDefault();
 
-			this._nextQuestion();
-		});
+	    this._nextQuestion();
+	});
 
-		// pressing enter will jump to next question
-		this.formRef.addEventListener('keydown', ev => {
+	// pressing enter will jump to next question
+	this.formRef.addEventListener('keydown', ev => {
             const keyCode = ev.keyCode || ev.which;
-            
-			// enter
-			if(keyCode === 13) {
+
+	    // enter
+	    if(keyCode === 13) {
                 ev.preventDefault();
-                
+
                 this._nextQuestion();
-			}
-		});
+	    }
+	});
     }
 
-    _nextQuestion() {
-		if(!this._validate()) {
-			return false;
-        }
-
-		// checks HTML5 validation
-		if (this.supportsHTML5Forms) {
-			const input = this.state.questions[this.state.current].querySelector('input, textarea, select');
-			// clear any previous error messages
-			input.setCustomValidity('');
-
-			// checks input against the validation constraint
-			if (!input.checkValidity()) {
-				// Optionally, set a custom HTML5 valiation message
-				// comment or remove this line to use the browser default message
-                //input.setCustomValidity('Whoops, that\'s not an email address!');
-                
-				// display the HTML5 error message
-                this._showError(input.validationMessage);
-                
-				// prevent the question from changing
-				return false;
-			}
-		}
-
-		// check if form is filled
-		if (this.state.current === this.state.questionsCount - 1) {
-			this.isFilled = true;
-		}
-
-        // clear any previous error messages
-		this._clearError();
-
-		// current question
-		const currentQuestion = this.state.questions[this.state.current];
-        currentQuestion.querySelector('input, textarea, select').blur();
-        this._setValue(currentQuestion)
-
-        this.setState({
-            ...this.state,
-            // increment current question iterator
-		    current: ++this.state.current
-        }, () => {
+    _nextQuestionFinish() {
+        {
             // update progress bar
             this._progress();
-
-            let nextQuestion;
+            this.props.onUpdate(this.state)
 
             if(!this.isFilled) {
-                // change the current question number/status
-                this._updateQuestionNumber();
-
                 // add class "show-next" to form element (start animations)
                 this.formRef.classList.add('show-next');
-
-                // remove class "current" from current question and add it to the next one
-                // current question
-                nextQuestion = this.state.questions[this.state.current];
-                currentQuestion.classList.remove('current');
-                nextQuestion.classList.add('current');
             }
 
             // after animation ends, remove class "show-next" from form element and change current question placeholder
@@ -231,17 +234,10 @@ class EurekaForm extends React.Component {
 
                 if(self.isFilled) {
                     this._submit();
-                }
-
-                else {
+                } else {
                     this.formRef.classList.remove('show-next');
-
-                    this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
-                    this.questionStatus.removeChild(this.nextQuestionNum);
-
-                    // force the focus on the next input
-                    nextQuestion.querySelector('input, textarea, select').focus();
                 }
+                this.questionRefs[this.state.current].focus()
             };
 
             // onEndTransitionFn();
@@ -252,80 +248,82 @@ class EurekaForm extends React.Component {
             else {
                 onEndTransitionFn();
             }
-        });
-	}
-
-    // updates the progress bar by setting its width
-	_progress() {
-		const currentProgress = this.state.current * ( 100 / this.state.questionsCount );
-        this.progress.style.width = currentProgress + '%';
-        
-		// update the progressbar's aria-valuenow attribute
-        this.progress.setAttribute('aria-valuenow', currentProgress);
-    }
-    
-    _validate() {
-        if (!this.state.questions[this.state.current]) {
-            return false;
         }
-
-		// current question´s input
-		const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
-		if (input === '') {
-            this._showError('EMPTYSTR');
-            
-			return false;
-		}
-
-		return true;
     }
 
-    _updateQuestionNumber() {
-		// first, create next question number placeholder
-		this.nextQuestionNum = document.createElement('span');
-		this.nextQuestionNum.className = 'number-next';
-        this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
-        
-		// insert it in the DOM
-		this.questionStatus.appendChild(this.nextQuestionNum);
-	}
-    
-    _showError(err) {
-		let message = '';
-		switch(err) {
-			case 'EMPTYSTR':
-				message = 'Please fill the field before continuing';
-				break;
-			case 'INVALIDEMAIL':
-				message = 'Please fill a valid email address';
-				break;
-			// ...
-			default:
-				message = err;
-        };
-        
-        this.error.innerHTML = message;
-        
-		this.error.classList.add('show');
-    }
-    
-    _clearError() {
-		this.error.classList.remove('show');
-    }
-    
-    _setValue(question) {
-        const questionInput = question.querySelector('input, textarea, select');
-        questionInput.setAttribute("disabled", true);
-        const key = questionInput.getAttribute("id")
-        const newState = {
-            ...this.state,
-            values: {
-                ...this.state.values,
-                [key]: questionInput.value
+    _nextQuestion() {
+        const component = this.questionRefs[this.state.current]
+        if (! component.validate) {
+            console.error("Warning, component", component, "doesn't support validation, implement your validate() method")
+        } else {
+            const validationResult = component.validate()
+            if (validationResult !== true) {
+                return this._showError(validationResult);
             }
         }
-        this.setState(newState)
-        this.props.onUpdate(newState)
+
+	// check if form is filled
+	if (this.state.current === this.state.questionsCount - 1) {
+	    this.isFilled = true;
+	}
+
+        // clear any previous error messages
+	this._clearError();
+
+        this.setState(state => ({
+            ...state,
+            // increment current question iterator
+	    current: ++state.current
+        }), () => this._nextQuestionFinish());
+    }
+
+    // updates the progress bar by setting its width
+    _progress() {
+	const currentProgress = this.state.current * ( 100 / this.state.questionsCount );
+        this.progress.style.width = currentProgress + '%';
+
+	// update the progressbar's aria-valuenow attribute
+        this.progress.setAttribute('aria-valuenow', currentProgress);
+    }
+
+    _showError(err) {
+	let message = '';
+	switch(err) {
+	    case 'EMPTYSTR':
+		message = 'Please fill the field before continuing';
+		break;
+	    case 'INVALIDEMAIL':
+		message = 'Please fill a valid email address';
+		break;
+		// ...
+		    default:
+		message = err;
+        };
+
+        this.setState({
+            error: message
+        })
+    }
+
+    _clearError() {
+        this.setState({
+            error: null
+        })
+    }
+
+    _change(key) {
+        return function (value) {
+            const { questions, current } = this.state
+
+            const newState = {
+                ...this.state,
+                values: {
+                    ...this.state.values,
+                    [key]: value
+                }
+            }
+            this.setState(newState)
+        }
     }
 
     _submit() {
@@ -341,70 +339,59 @@ class EurekaForm extends React.Component {
                 this.props.onSubmit(this.formRef, this.state.values);
             });
         }
-	}
+    }
 
     render() {
-      let customClass = "";
-      
-      if (this.props.className) {
-        customClass = this.props.className + " ";
-      }
+        const { current, error, questions, questionsCount } = this.state
+        const { className = "" } = this.props
+        let customClass = className + " ";
 
-      return (
-        <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
-            <div className="simform-inner">
-                <ol className="questions">
-                    {this.props.questions && this.props.questions.map((question, i) => {
-                         const key = question.key || `eureka-question-${i}`
-                         return (
-                             <li key={key}>
-                                 <span>
-                                     <label htmlFor={key}>
-                                         {question.title}
-                                     </label>
-                                 </span>
 
-                                 <input id={key} name={key} type={question.inputType || "text"} />
+        return (
+            <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
+                <div className="simform-inner">
+                    <ol className="questions">
+                        {questions && React.Children.map(questions, (child, i) => {
+                             const key = child.props.type || `eureka-question-${i}`
+                             const className = i === current
+                                             ? 'question current'
+                                             : i === current - 1
+                                             ? 'question prev'
+                                             : i === current + 1
+                                             ? 'question next'
+                                             : 'question'
+                             return <li key={key} className={className}>
+                                 {
+                                     React.cloneElement(child, {
+                                         onChange: this._change(key).bind(this),
+                                         focus: i === current ? true : false,
+                                         ref: (e) => this.questionRefs[i] = e,
+                                         key
+                                     })
+                                 }
                              </li>
-                         )
-                    })}
-                    {this.props.children && React.Children.map(this.props.children, (child, i) => {
-                         const key = child.props.type || `eureka-question-${i}`
-                         return (
-                             <li key={key}>
-                                 <span>
-                                     <label htmlFor={key}>
-                                         {child}
-                                     </label>
-                                 </span>
+                        })}
+                    </ol>
 
-                                 <input id={key} name={key} type={child.props.type || "text"} />
-                             </li>
-                         )
-                    })}
-                </ol>
-                
-                <button className="submit" type="submit">Send answers</button>
+                    <button className="submit" type="submit">Send answers</button>
 
-                <div className="controls">
-                    <button className="next">
-                        <ICONS_ARROW />
-                    </button>
+                    <div className="controls">
+                        <button className="next">
+                            <ICONS_ARROW />
+                        </button>
 
-                    <div className="progress"></div>
+                        <div className="progress"></div>
 
-                    <span className="number">
-                        <span className="number-current"></span>
-                        <span className="number-total"></span>
-                    </span>
+                        <span className="number">
+                            <Number value={current + 1}/>
+                            <span className="number-total">{questionsCount}</span>
+                        </span>
 
-                    <span className="error-message"></span>
+                        {error && <span className="error-message">{error}</span>}
+                    </div>
                 </div>
-            </div>
-
-            <span className="final-message"></span>
-        </form>
-      )
+            </form>
+        )
     }
 }
 
@@ -412,4 +399,4 @@ EurekaForm.defaultProps = {
     onUpdate: function () {}
 }
 
-module.exports = { EurekaForm };
+module.exports = { EurekaForm, Question, Number };
