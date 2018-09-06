@@ -1,185 +1,280 @@
-import React from 'react';
+import React from "react";
 
-import './style.css';
+import "./style.css";
 
-import ICONS_ARROW from 'react-icons/lib/md/arrow-forward';
+import ICONS_ARROW from "react-icons/lib/md/arrow-forward";
+import ICONS_ARROW_BACKWARD from "react-icons/lib/md/arrow-back";
+
+const inputDefaults = {
+	tel: {
+		placeholder: "6479876543",
+		pattern: "[0-9]{10}"
+	}
+}
 
 const checkTransitionsSupport = () => {
-    const b = document.body || document.documentElement;
-    const s = b.style;
-    let p = 'transition';
+	const b = document.body || document.documentElement;
+	const s = b.style;
+	let p = "transition";
 
-    if (typeof s[p] == 'string') {
-        return true;
-    }
+	if (typeof s[p] == "string") {
+		return true;
+	}
 
-    // Tests for vendor specific prop
-    const v = ['Moz', 'webkit', 'Webkit', 'Khtml', 'O', 'ms'];
-    p = p.charAt(0).toUpperCase() + p.substr(1);
+	// Tests for vendor specific prop
+	const v = ["Moz", "webkit", "Webkit", "Khtml", "O", "ms"];
+	p = p.charAt(0).toUpperCase() + p.substr(1);
 
-    for (let i = 0; i < v.length; i++) {
-        if (typeof s[v[i] + p] == 'string') {
-            return true;
-        }
-    }
+	for (let i = 0; i < v.length; i++) {
+		if (typeof s[v[i] + p] == "string") {
+			return true;
+		}
+	}
 
-    return false;
+	return false;
 };
 const supportsTransitions = checkTransitionsSupport();
 
 // generates a unique id
 const randomID = () => {
-    const id = Math.random().toString(36).substr(2, 9);
-    if (document.getElementById(id)) {
-        return randomID();
-    }
+	const id = Math.random()
+		.toString(36)
+		.substr(2, 9);
+	if (document.getElementById(id)) {
+		return randomID();
+	}
 
-    return id;
+	return id;
 };
 
 class EurekaForm extends React.Component {
-    constructor(props) {
-        super(props);
+	constructor(props) {
+		super(props);
 
-        this.state = {
-            current: 0,
-            questions: [],
-            values: {},
-            wasSubmitted: false
-        };
-    }
+		this.state = {
+			current: 0,
+			questions: [],
+			values: {},
+			wasSubmitted: false
+		};
+	}
 
-    _updateQuestions(callback = () => {}) {
-        const childQuestions = React.Children.map(this.props.children, (child, i) => ({
-            type: child.props.type || `eureka-question-${i}`
-        }))
-        const questions = [].slice.call(this.formRef.querySelectorAll( 'ol.questions > li' ));
-        const values = (this.props.questions || [])
-            .concat(childQuestions)
-            .reduce((acc, cur) => Object.assign({}, acc, {
-                [cur.type]: undefined
-            }), {})
-        this.setState({
-            ...this.state,
-            questions,
-            values,
-            // XXX: this actually doesn't catch duplicate keys,
-            // i.e. it actually counts the *awswers* you can get.
-            questionsCount: Object.keys(values).length,
-        }, callback);
-    }
+	_updateQuestions(callback = () => { }) {
+		const childQuestions = React.Children.map(
+			this.props.children,
+			(child, i) => ({
+				type: child.props.type || `eureka-question-${i}`
+			})
+		);
+		const questions = [].slice.call(
+			this.formRef.querySelectorAll("ol.questions > li")
+		);
+		const values = (this.props.questions || []).concat(childQuestions).reduce(
+			(acc, cur) =>
+				Object.assign({}, acc, {
+					[cur.type]: undefined
+				}),
+			{}
+		);
+		this.setState(
+			{
+				...this.state,
+				questions,
+				values,
+				// XXX: this actually doesn't catch duplicate keys,
+				// i.e. it actually counts the *awswers* you can get.
+				questionsCount: Object.keys(values).length
+			},
+			callback
+		);
+	}
 
-    componentDidMount() {
-        this._updateQuestions(() => {
-            // show first question
-            this.props.onUpdate(this.state)
-            const firstQuestion = this.state.questions[0];
-            firstQuestion.classList.add('current');
+	componentDidMount() {
+		this._updateQuestions(() => {
+			// show first question
+			this.props.onUpdate(this.state);
+			const firstQuestion = this.state.questions[0];
+			firstQuestion.classList.add("current");
 
-            // next question control
-            this.ctrlNext = this.formRef.querySelector('button.next');
-            this.ctrlNext.setAttribute('aria-label', 'Next');
+			// next question control
+			this.ctrlNext = this.formRef.querySelector("button.next");
+			this.ctrlNext.setAttribute("aria-label", "Next");
 
-            // // progress bar
-            this.progress = this.formRef.querySelector('div.progress');
-            
-            // // set progressbar attributes
-            this.progress.setAttribute('role', 'progressbar');
-            this.progress.setAttribute('aria-readonly', 'true');
-            this.progress.setAttribute('aria-valuemin', '0');
-            this.progress.setAttribute('aria-valuemax', '100');
-            this.progress.setAttribute('aria-valuenow', '0');
+			// // progress bar
+			this.progress = this.formRef.querySelector("div.progress");
 
-            // // question number status
-            this.questionStatus = this.formRef.querySelector('span.number');
-            
-            // // give the questions status an id
-            this.questionStatus.id = this.questionStatus.id || randomID();
-            
-            // associate "x / y" with the input via aria-describedby
-            for (var i = this.state.questions.length - 1; i >= 0; i--) {
-                const formElement = this.state.questions[i].querySelector('input, textarea, select');
-                formElement.setAttribute('aria-describedby', this.questionStatus.id);
-            };
-            
-            // // current question placeholder
-            this.currentNum = this.questionStatus.querySelector('span.number-current');
-            this.currentNum.innerHTML = Number(this.state.current + 1);
-            
-            // // total questions placeholder
-            this.totalQuestionNum = this.questionStatus.querySelector('span.number-total');
-            this.totalQuestionNum.innerHTML = this.state.questionsCount;
+			// // set progressbar attributes
+			this.progress.setAttribute("role", "progressbar");
+			this.progress.setAttribute("aria-readonly", "true");
+			this.progress.setAttribute("aria-valuemin", "0");
+			this.progress.setAttribute("aria-valuemax", "100");
+			this.progress.setAttribute("aria-valuenow", "0");
 
-            // // error message
-            this.error = this.formRef.querySelector('span.error-message');
+			// // question number status
+			this.questionStatus = this.formRef.querySelector("span.number");
 
-            // checks for HTML5 Form Validation support
-            // a cleaner solution might be to add form validation to the custom Modernizr script
-            this.supportsHTML5Forms = typeof document.createElement("input").checkValidity === 'function';
+			// // give the questions status an id
+			this.questionStatus.id = this.questionStatus.id || randomID();
 
-            // init events
-            this._initEvents();
-        });
-    }
+			// associate "x / y" with the input via aria-describedby
+			for (var i = this.state.questions.length - 1; i >= 0; i--) {
+				const formElement = this.state.questions[i].querySelector(
+					"input, textarea, select"
+				);
+				formElement.setAttribute("aria-describedby", this.questionStatus.id);
+			}
 
-    _initEvents() {
-        // first input
-        const firstElInput = this.state.questions[this.state.current].querySelector('input, textarea, select');
-        
-        // focus
-        const onFocusStartFn = () => {
-            firstElInput.removeEventListener('focus', onFocusStartFn);
+			// // current question placeholder
+			this.currentNum = this.questionStatus.querySelector(
+				"span.number-current"
+			);
+			this.currentNum.innerHTML = Number(this.state.current + 1);
 
-            this.ctrlNext.classList.add('show');
-        };
+			// // total questions placeholder
+			this.totalQuestionNum = this.questionStatus.querySelector(
+				"span.number-total"
+			);
+			this.totalQuestionNum.innerHTML = this.state.questionsCount;
+
+			// // error message
+			this.error = this.formRef.querySelector("span.error-message");
+
+			// checks for HTML5 Form Validation support
+			// a cleaner solution might be to add form validation to the custom Modernizr script
+			this.supportsHTML5Forms =
+				typeof document.createElement("input").checkValidity === "function";
+
+			// init events
+			this._initEvents();
+		});
+	}
+
+	_initEvents() {
+		// first input
+		const firstElInput = this.state.questions[this.state.current].querySelector(
+			"input, textarea, select"
+		);
+
+		// focus
+		const onFocusStartFn = () => {
+			firstElInput.removeEventListener("focus", onFocusStartFn);
+
+			this.ctrlNext.classList.add("show");
+		};
 
 		// show the next question control first time the input gets focused
-        firstElInput.addEventListener('focus', onFocusStartFn);
-        
-        if (this.props.autoFocus) {
-            firstElInput.focus();
-        }
+		firstElInput.addEventListener("focus", onFocusStartFn);
+
+		if (this.props.autoFocus) {
+			firstElInput.focus();
+		}
 
 		// show next question
-		this.ctrlNext.addEventListener('click', ev => {
-            ev.preventDefault();
+		this.ctrlNext.addEventListener("click", ev => {
+			ev.preventDefault();
 
 			this._nextQuestion();
 		});
 
 		// pressing enter will jump to next question
-		this.formRef.addEventListener('keydown', ev => {
-            const keyCode = ev.keyCode || ev.which;
-            
+		this.formRef.addEventListener("keydown", ev => {
+			const keyCode = ev.keyCode || ev.which;
+
 			// enter
-			if(keyCode === 13) {
-                ev.preventDefault();
-                
-                this._nextQuestion();
+			if (keyCode === 13) {
+				ev.preventDefault();
+
+				this._nextQuestion();
 			}
 		});
-    }
+	}
 
-    _nextQuestion() {
-		if(!this._validate()) {
+	_previousQuestion() {
+		// clear any previous error messages
+		this._clearError();
+
+		// current question
+		const currentQuestion = this.state.questions[this.state.current];
+
+		const previousQuestion = this.state.questions[this.state.current - 1];
+		previousQuestion.querySelector("input, textarea, select")
+			.removeAttribute("disabled");
+
+		this.setState(
+			{
+				...this.state,
+				// increment current question iterator
+				current: --this.state.current
+			},
+			() => {
+				// update progress bar
+				this._progress();
+
+				let nextQuestion;
+
+				this._updateQuestionNumber();
+
+				// add class "show-next" to form element (start animations)
+				this.formRef.classList.add("show-next");
+
+				// remove class "current" from current question and add it to the next one
+				// current question
+				nextQuestion = this.state.questions[this.state.current];
+				currentQuestion.classList.remove("current");
+				nextQuestion.classList.add("current");
+
+				// after animation ends, remove class "show-next" from form element and change current question placeholder
+				const self = this;
+				const onEndTransitionFn = ev => {
+					if (supportsTransitions) {
+						this.progress.removeEventListener(
+							"transitionend",
+							onEndTransitionFn
+						);
+					}
+
+					this.formRef.classList.remove("show-next");
+
+					this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
+					this.questionStatus.removeChild(this.nextQuestionNum);
+
+					// force the focus on the next input
+					nextQuestion.querySelector("input, textarea, select").focus();
+				};
+
+				// onEndTransitionFn();
+
+				if (supportsTransitions) {
+					this.progress.addEventListener("transitionend", onEndTransitionFn);
+				} else {
+					onEndTransitionFn();
+				}
+			}
+		);
+	}
+
+	_nextQuestion() {
+		if (!this._validate()) {
 			return false;
-        }
+		}
 
 		// checks HTML5 validation
 		if (this.supportsHTML5Forms) {
-			const input = this.state.questions[this.state.current].querySelector('input, textarea, select');
+			const input = this.state.questions[this.state.current].querySelector(
+				"input, textarea, select"
+			);
 			// clear any previous error messages
-			input.setCustomValidity('');
+			input.setCustomValidity("");
 
 			// checks input against the validation constraint
 			if (!input.checkValidity()) {
 				// Optionally, set a custom HTML5 valiation message
 				// comment or remove this line to use the browser default message
-                //input.setCustomValidity('Whoops, that\'s not an email address!');
-                
+				//input.setCustomValidity('Whoops, that\'s not an email address!');
+
 				// display the HTML5 error message
-                this._showError(input.validationMessage);
-                
+				this._showError(input.validationMessage);
+
 				// prevent the question from changing
 				return false;
 			}
@@ -190,226 +285,262 @@ class EurekaForm extends React.Component {
 			this.isFilled = true;
 		}
 
-        // clear any previous error messages
+		// clear any previous error messages
 		this._clearError();
 
 		// current question
 		const currentQuestion = this.state.questions[this.state.current];
-        currentQuestion.querySelector('input, textarea, select').blur();
-        this._setValue(currentQuestion)
+		currentQuestion.querySelector("input, textarea, select").blur();
+		this._setValue(currentQuestion);
 
-        this.setState({
-            ...this.state,
-            // increment current question iterator
-		    current: ++this.state.current
-        }, () => {
-            // update progress bar
-            this._progress();
+		this.setState(
+			{
+				...this.state,
+				// increment current question iterator
+				current: ++this.state.current
+			},
+			() => {
+				// update progress bar
+				this._progress();
 
-            let nextQuestion;
+				let nextQuestion;
 
-            if(!this.isFilled) {
-                // change the current question number/status
-                this._updateQuestionNumber();
+				if (!this.isFilled) {
+					// change the current question number/status
+					this._updateQuestionNumber();
 
-                // add class "show-next" to form element (start animations)
-                this.formRef.classList.add('show-next');
+					// add class "show-next" to form element (start animations)
+					this.formRef.classList.add("show-next");
 
-                // remove class "current" from current question and add it to the next one
-                // current question
-                nextQuestion = this.state.questions[this.state.current];
-                currentQuestion.classList.remove('current');
-                nextQuestion.classList.add('current');
-            }
+					// remove class "current" from current question and add it to the next one
+					// current question
+					nextQuestion = this.state.questions[this.state.current];
+					currentQuestion.classList.remove("current");
+					nextQuestion.classList.add("current");
+				}
 
-            // after animation ends, remove class "show-next" from form element and change current question placeholder
-            const self = this;
-            const onEndTransitionFn = ev => {
-                if (supportsTransitions) {
-                    this.progress.removeEventListener("transitionend", onEndTransitionFn);
-                }
+				// after animation ends, remove class "show-next" from form element and change current question placeholder
+				const self = this;
+				const onEndTransitionFn = ev => {
+					if (supportsTransitions) {
+						this.progress.removeEventListener(
+							"transitionend",
+							onEndTransitionFn
+						);
+					}
 
-                if(self.isFilled) {
-                    this._submit();
-                }
+					if (self.isFilled) {
+						this._submit();
+					} else {
+						this.formRef.classList.remove("show-next");
 
-                else {
-                    this.formRef.classList.remove('show-next');
+						this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
+						this.questionStatus.removeChild(this.nextQuestionNum);
 
-                    this.currentNum.innerHTML = this.nextQuestionNum.innerHTML;
-                    this.questionStatus.removeChild(this.nextQuestionNum);
+						// force the focus on the next input
+						nextQuestion.querySelector("input, textarea, select").focus();
+					}
+				};
 
-                    // force the focus on the next input
-                    nextQuestion.querySelector('input, textarea, select').focus();
-                }
-            };
+				// onEndTransitionFn();
 
-            // onEndTransitionFn();
-
-            if (supportsTransitions) {
-                this.progress.addEventListener("transitionend", onEndTransitionFn);
-            }
-            else {
-                onEndTransitionFn();
-            }
-        });
+				if (supportsTransitions) {
+					this.progress.addEventListener("transitionend", onEndTransitionFn);
+				} else {
+					onEndTransitionFn();
+				}
+			}
+		);
 	}
 
-    // updates the progress bar by setting its width
+	// updates the progress bar by setting its width
 	_progress() {
-		const currentProgress = this.state.current * ( 100 / this.state.questionsCount );
-        this.progress.style.width = currentProgress + '%';
-        
+		const currentProgress =
+			this.state.current * (100 / this.state.questionsCount);
+		this.progress.style.width = currentProgress + "%";
+
 		// update the progressbar's aria-valuenow attribute
-        this.progress.setAttribute('aria-valuenow', currentProgress);
-    }
-    
-    _validate() {
-        if (!this.state.questions[this.state.current]) {
-            return false;
-        }
+		this.progress.setAttribute("aria-valuenow", currentProgress);
+	}
+
+	_validate() {
+		if (!this.state.questions[this.state.current]) {
+			return false;
+		}
 
 		// current question´s input
-		const input = this.state.questions[this.state.current].querySelector('input, textarea, select').value;
-		if (input === '') {
-            this._showError('EMPTYSTR');
-            
+		const input = this.state.questions[this.state.current].querySelector(
+			"input, textarea, select"
+		).value;
+		if (input === "") {
+			this._showError("EMPTYSTR");
+
 			return false;
 		}
 
 		return true;
-    }
+	}
 
-    _updateQuestionNumber() {
+	_updateQuestionNumber() {
 		// first, create next question number placeholder
-		this.nextQuestionNum = document.createElement('span');
-		this.nextQuestionNum.className = 'number-next';
-        this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
-        
+		this.nextQuestionNum = document.createElement("span");
+		this.nextQuestionNum.className = "number-next";
+		this.nextQuestionNum.innerHTML = Number(this.state.current + 1);
+
 		// insert it in the DOM
 		this.questionStatus.appendChild(this.nextQuestionNum);
 	}
-    
-    _showError(err) {
-		let message = '';
-		switch(err) {
-			case 'EMPTYSTR':
-				message = 'Please fill the field before continuing';
+
+	_showError(err) {
+		let message = "";
+		switch (err) {
+			case "EMPTYSTR":
+				message = "Please fill the field before continuing";
 				break;
-			case 'INVALIDEMAIL':
-				message = 'Please fill a valid email address';
+			case "INVALIDEMAIL":
+				message = "Please fill a valid email address";
 				break;
 			// ...
 			default:
 				message = err;
-        };
-        
-        this.error.innerHTML = message;
-        
-		this.error.classList.add('show');
-    }
-    
-    _clearError() {
-		this.error.classList.remove('show');
-    }
-    
-    _setValue(question) {
-        const questionInput = question.querySelector('input, textarea, select');
-        questionInput.setAttribute("disabled", true);
-        const key = questionInput.getAttribute("id")
-        const newState = {
-            ...this.state,
-            values: {
-                ...this.state.values,
-                [key]: questionInput.value
-            }
-        }
-        this.setState(newState)
-        this.props.onUpdate(newState)
-    }
+		}
 
-    _submit() {
-        if (!this.state.wasSubmitted) {
-            this.setState({
-                ...this.state,
-                wasSubmitted: true
-            }, () => {
-                // Remove next button
-                this.ctrlNext.style.display = "none";
+		this.error.innerHTML = message;
 
-                // Call the custom onSubmit function
-                this.props.onSubmit(this.formRef, this.state.values);
-            });
-        }
+		this.error.classList.add("show");
 	}
 
-    render() {
-      let customClass = "";
-      
-      if (this.props.className) {
-        customClass = this.props.className + " ";
-      }
+	_clearError() {
+		this.error.classList.remove("show");
+	}
 
-      return (
-        <form id={this.props.id} className={customClass + "simform"} ref={formRef => this.formRef = formRef}>
-            <div className="simform-inner">
-                <ol className="questions">
-                    {this.props.questions && this.props.questions.map((question, i) => {
-                         const key = question.key || `eureka-question-${i}`
-                         return (
-                             <li key={key}>
-                                 <span>
-                                     <label htmlFor={key}>
-                                         {question.title}
-                                     </label>
-                                 </span>
+	_setValue(question) {
+		const questionInput = question.querySelector("input, textarea, select");
+		questionInput.setAttribute("disabled", true);
+		const key = questionInput.getAttribute("id");
+		const newState = {
+			...this.state,
+			values: {
+				...this.state.values,
+				[key]: questionInput.value
+			}
+		};
+		this.setState(newState);
+		this.props.onUpdate(newState);
+	}
 
-                                 <input id={key} name={key} type={question.inputType || "text"} />
-                             </li>
-                         )
-                    })}
-                    {this.props.children && React.Children.map(this.props.children, (child, i) => {
-                         const key = child.props.type || `eureka-question-${i}`
-                         return (
-                             <li key={key}>
-                                 <span>
-                                     <label htmlFor={key}>
-                                         {child}
-                                     </label>
-                                 </span>
+	_submit() {
+		if (!this.state.wasSubmitted) {
+			this.setState(
+				{
+					...this.state,
+					wasSubmitted: true
+				},
+				() => {
+					// Remove next button
+					this.ctrlNext.style.display = "none";
 
-                                 <input id={key} name={key} type={child.props.type || "text"} />
-                             </li>
-                         )
-                    })}
-                </ol>
-                
-                <button className="submit" type="submit">Send answers</button>
+					// Call the custom onSubmit function
+					this.props.onSubmit(this.formRef, this.state.values);
+				}
+			);
+		}
+	}
 
-                <div className="controls">
-                    <button className="next">
-                        <ICONS_ARROW />
-                    </button>
+	render() {
+		let customClass = "";
+		const { current } = this.state
 
-                    <div className="progress"></div>
+		if (this.props.className) {
+			customClass = this.props.className + " ";
+		}
 
-                    <span className="number">
-                        <span className="number-current"></span>
-                        <span className="number-total"></span>
-                    </span>
+		return (
+			<form
+				id={this.props.id}
+				className={customClass + "simform"}
+				ref={formRef => (this.formRef = formRef)}
+			>
+				<div className="simform-inner">
+					<ol className="questions">
+						{current > 0 &&
+							<a className="back-button" href="#" onClick={this._previousQuestion.bind(this)}>
+								<ICONS_ARROW_BACKWARD />
+							</a>
+						}
+						{this.props.questions &&
+							this.props.questions.map((question, i) => {
+								const key = question.key || `eureka-question-${i}`;
+								const { inputType } = question;
 
-                    <span className="error-message"></span>
-                </div>
-            </div>
+								return (
+									<li key={key}>
+										<span>
+											<label htmlFor={key}>{question.title}</label>
+										</span>
 
-            <span className="final-message"></span>
-        </form>
-      )
-    }
+										<input
+											id={key}
+											name={key}
+											type={inputType || "text"}
+											pattern={inputDefaults[inputType] && inputDefaults[inputType].pattern}
+											placeholder={inputDefaults[inputType] && inputDefaults[inputType].placeholder}
+											autoComplete="new-password"
+										/>
+									</li>
+								);
+							})}
+						{this.props.children &&
+							React.Children.map(this.props.children, (child, i) => {
+								const key = child.props.type || `eureka-question-${i}`;
+								const inputType = child.props.type;
+
+								return (
+									<li key={key}>
+										<span>
+											<label htmlFor={key}>{child}</label>
+										</span>
+
+										<input
+											id={key}
+											name={key}
+											type={inputType || "text"}
+											pattern={inputDefaults[inputType] && inputDefaults[inputType].pattern}
+											placeholder={inputDefaults[inputType] && inputDefaults[inputType].placeholder}
+										/>
+									</li>
+								);
+							})}
+					</ol>
+
+					<button className="submit" type="submit">
+						Send answers
+          			</button>
+
+					<div className="controls">
+						<button className="next">
+							<ICONS_ARROW />
+						</button>
+
+						<div className="progress" />
+
+						<span className="number">
+							<span className="number-current" />
+							<span className="number-total" />
+						</span>
+
+						<span className="error-message" />
+					</div>
+				</div>
+
+				<span className="final-message" />
+			</form>
+		);
+	}
 }
 
 EurekaForm.defaultProps = {
-    onUpdate: function () {}
-}
+	onUpdate: function () { }
+};
 
 module.exports = { EurekaForm };
